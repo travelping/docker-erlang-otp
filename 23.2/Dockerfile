@@ -1,25 +1,26 @@
 FROM alpine:3.13
 
-ENV OTP_VERSION="24.0-rc2" \
-    REBAR3_VERSION="3.14.4"
+ENV OTP_VERSION="23.2.7.2" \
+    REBAR3_VERSION="3.15.1"
 
 LABEL org.opencontainers.image.version=$OTP_VERSION
 
 RUN set -xe \
 	&& OTP_DOWNLOAD_URL="https://github.com/erlang/otp/archive/OTP-${OTP_VERSION}.tar.gz" \
-	&& OTP_DOWNLOAD_SHA256="9eff1b61e3642e7b9f61153c0c067a2aa072e8a187b39770d8145ba11172e526" \
-	&& REBAR3_DOWNLOAD_SHA256="8d78ed53209682899d777ee9443b26b39c9bf96c8b081fe94b3dd6693077cb9a" \
+	&& OTP_DOWNLOAD_SHA256="39724977c7a4e4cfed421467a6363d2e409defa96fb8e10f3303109b1cbc3313" \
+	&& REBAR3_DOWNLOAD_SHA256="2d09eafee3b03a212886ffec08ef15036c33edc603a9cdde841876fcb3b25bba" \
 	&& apk add --no-cache --virtual .fetch-deps \
 		curl \
 		ca-certificates \
 	&& curl -fSL -o otp-src.tar.gz "$OTP_DOWNLOAD_URL" \
 	&& echo "$OTP_DOWNLOAD_SHA256  otp-src.tar.gz" | sha256sum -c - \
 	&& apk add --no-cache --virtual .build-deps \
+		--repository=http://dl-cdn.alpinelinux.org/alpine/v3.12/main \
 		dpkg-dev dpkg \
 		gcc \
 		g++ \
 		libc-dev \
-		linux-headers \
+		linux-headers=5.4.5-r1 \
 		make \
 		autoconf \
 		ncurses-dev \
