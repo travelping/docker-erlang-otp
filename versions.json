@@ -17,13 +17,13 @@
 	},
 	{
 	    "major": "23.3",
-	    "version": "23.3.1",
-	    "download_sha256": "a5a067a3b17bbef8511f2c056957925b666670b6f2cdaf645e1bc28ce3dd3517"
+	    "version": "23.3.2",
+	    "download_sha256": "bb40ca2723fe51891850dc3bdf9e0409f195c73312e22e41e123ec55f26cc31f"
 	},
 	{
 	    "major": "24.0",
-	    "version": "24.0-rc2",
-	    "download_sha256": "9eff1b61e3642e7b9f61153c0c067a2aa072e8a187b39770d8145ba11172e526"
+	    "version": "24.0-rc3",
+	    "download_sha256": "22d477fe4f0677eb076ee7f4699e4b0543acfdd5098682722061225ae510d8a9"
 	}
     ],
     "rebar3": [
