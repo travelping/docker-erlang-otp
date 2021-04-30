@@ -3,17 +3,17 @@
 	{
 	    "major": "22.3",
 	    "version": "22.3.4.17",
-	    "download_sha256": "60b1fe524609d73a8e8c12fdff040b5770ec1b85ce06ba66b5097a4fd5f63950"
+	    "download_sha256": "e268402bd65a9420ce5fd92a5d7debc00f4ce587db218f69417ced9d0ae59425"
 	},
 	{
 	    "major": "23.1",
 	    "version": "23.1.5",
-	    "download_sha256": "31719b8681e7f9ad6f30e329a0a0e5c4dd23dea858021573395fcdbea0d7702c"
+	    "download_sha256": "ba876efa7fa951ba32b24af94541241860309df8842a228eff4a781a122a0012"
 	},
 	{
 	    "major": "23.2",
 	    "version": "23.2.7.2",
-	    "download_sha256": "39724977c7a4e4cfed421467a6363d2e409defa96fb8e10f3303109b1cbc3313"
+	    "download_sha256": "a736b518ffe77393bc726bbec08c60eef041172d3ce70ccba7b1ae81ba273496"
 	},
 	{
 	    "major": "23.3",
