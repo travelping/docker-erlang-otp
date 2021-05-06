@@ -2,23 +2,13 @@
     "otp": [
 	{
 	    "major": "22.3",
-	    "version": "22.3.4.17",
-	    "download_sha256": "e268402bd65a9420ce5fd92a5d7debc00f4ce587db218f69417ced9d0ae59425"
-	},
-	{
-	    "major": "23.1",
-	    "version": "23.1.5",
-	    "download_sha256": "ba876efa7fa951ba32b24af94541241860309df8842a228eff4a781a122a0012"
-	},
-	{
-	    "major": "23.2",
-	    "version": "23.2.7.2",
-	    "download_sha256": "a736b518ffe77393bc726bbec08c60eef041172d3ce70ccba7b1ae81ba273496"
+	    "version": "22.3.4.18",
+	    "download_sha256": "06ca9f9a0de38bae76c3badeab182d694148e79211514a3ee6f0ce798b99f09a"
 	},
 	{
 	    "major": "23.3",
-	    "version": "23.3.2",
-	    "download_sha256": "bb40ca2723fe51891850dc3bdf9e0409f195c73312e22e41e123ec55f26cc31f"
+	    "version": "23.3.3",
+	    "download_sha256": "de68cf6c3ad18aaf89d0f5109714a03193e0e996f0bb009de48d4539e0f194dd"
 	},
 	{
 	    "major": "24.0",

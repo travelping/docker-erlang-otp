@@ -1,3 +1,2 @@
-0001-diameter-fix-set-unodered-flag-in-client-connect-mod.patch
-0002-diameter-add-test-for-SCP-unordered-delivery.patch
-0003-diameter-fix-delays-in-gen_sctp-test-suite.patch
+0001-diameter-fix-typo-in-get_value-should-have-been-unor.patch
+0002-diameter-fix-set-unodered-flag-in-client-connect-mod.patch
