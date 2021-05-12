@@ -12,8 +12,8 @@
 	},
 	{
 	    "major": "24.0",
-	    "version": "24.0-rc3",
-	    "download_sha256": "22d477fe4f0677eb076ee7f4699e4b0543acfdd5098682722061225ae510d8a9"
+	    "version": "24.0",
+	    "download_sha256": "3d075006fb3832940843b6f12baaa6d1f36cadcd646be18ab2546db9c317e399"
 	}
     ],
     "rebar3": [
