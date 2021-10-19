@@ -2,8 +2,8 @@
     "otp": [
 	{
 	    "major": "22.3",
-	    "version": "22.3.4.20",
-	    "download_sha256": "43289f20a7038b6835615a1f68a6e32b9aeec6db38cdb7c97adf78d048d74079"
+	    "version": "22.3.4.22",
+	    "download_sha256": "e7f0793e62f8da4f7551dc9c1c0de76c40f19773ba516121fc56315c840f60cc"
 	},
 	{
 	    "major": "23.3",
