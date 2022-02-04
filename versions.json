@@ -7,13 +7,13 @@
 	},
 	{
 	    "major": "23.3",
-	    "version": "23.3.4.10",
-	    "download_sha256": "5dd75f5032b0c13193620981b901e6277af9dfd8e6e7a7cbee51b8a6448acd19"
+	    "version": "23.3.4.11",
+	    "download_sha256": "194bcc256c187a56a2891c9bdc36f2112bd6035e40a35f877b2f52524a0888ce"
 	},
 	{
 	    "major": "24.2",
-	    "version": "24.2",
-	    "download_sha256": "af0f1928dcd16cd5746feeca8325811865578bf1a110a443d353ea3e509e6d41"
+	    "version": "24.2.1",
+	    "download_sha256": "380a77aef34ad449bf8370a380b7901364b9be23e3d25068fc5c43258bcbec11"
 	}
     ],
     "rebar3": [
