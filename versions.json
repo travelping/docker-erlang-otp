@@ -11,9 +11,9 @@
 	    "download_sha256": "194bcc256c187a56a2891c9bdc36f2112bd6035e40a35f877b2f52524a0888ce"
 	},
 	{
-	    "major": "24.2",
-	    "version": "24.2.1",
-	    "download_sha256": "380a77aef34ad449bf8370a380b7901364b9be23e3d25068fc5c43258bcbec11"
+	    "major": "24.3",
+	    "version": "24.3",
+	    "download_sha256": "ee8dd101af68ba175deec1844059ed287a22f7f46e72915631c965cc8be331f9"
 	},
 	{
 	    "major": "25.0",
