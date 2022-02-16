@@ -14,6 +14,11 @@
 	    "major": "24.2",
 	    "version": "24.2.1",
 	    "download_sha256": "380a77aef34ad449bf8370a380b7901364b9be23e3d25068fc5c43258bcbec11"
+	},
+	{
+	    "major": "25.0",
+	    "version": "25.0-rc1",
+	    "download_sha256": "fe62c97354967dc1cb213695484cb6d79af0753629167047d0cd9312829bb645"
 	}
     ],
     "rebar3": [
