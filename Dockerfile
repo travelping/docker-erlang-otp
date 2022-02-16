@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.2
 
-FROM alpine:3.14
+FROM alpine:3.15
 
 ARG OTP_VERSION
 ARG OTP_DOWNLOAD_SHA256
