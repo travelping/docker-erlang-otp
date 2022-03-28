@@ -2,23 +2,23 @@
     "otp": [
 	{
 	    "major": "22.3",
-	    "version": "22.3.4.24",
-	    "download_sha256": "7dc7129049cc7d61fef835381999cc5fabf9f4d84efb6d4936e6782f5c81fd24"
+	    "version": "22.3.4.26",
+	    "download_sha256": "ee281e4638c8d671dd99459a11381345ee9d70f1f8338f5db31fc082349a370e"
 	},
 	{
 	    "major": "23.3",
-	    "version": "23.3.4.11",
-	    "download_sha256": "194bcc256c187a56a2891c9bdc36f2112bd6035e40a35f877b2f52524a0888ce"
+	    "version": "23.3.4.14",
+	    "download_sha256": "35123f366ded534775a05db8ad6c06c20519ae228af1b5952132b10845621f21"
 	},
 	{
 	    "major": "24.3",
-	    "version": "24.3",
-	    "download_sha256": "ee8dd101af68ba175deec1844059ed287a22f7f46e72915631c965cc8be331f9"
+	    "version": "24.3.4",
+	    "download_sha256": "76fcca5ba6f11eb9caac32bf053badc46b5d66f867150eef077f4f0d7944ecd7"
 	},
 	{
 	    "major": "25.0",
-	    "version": "25.0-rc1",
-	    "download_sha256": "fe62c97354967dc1cb213695484cb6d79af0753629167047d0cd9312829bb645"
+	    "version": "25.0",
+	    "download_sha256": "2d7678c9bc6fcf3a1242c4d1c3864855d85e73ade792cd80adb8a9f379996711"
 	}
     ],
     "rebar3": [
