@@ -53,7 +53,7 @@ RUN set -xe \
 	&& rm -rf /patches \
 	&& find /usr/local -regex '/usr/local/lib/erlang/\(lib/\|erts-\).*/\(man\|doc\|obj\|c_src\|emacs\|info\|examples\)' | xargs rm -rf \
 	&& find /usr/local -name src | xargs -r find | grep -v '\.hrl$' | xargs rm -v || true \
-	&& find /usr/local -name src | xargs -r find | xargs rmdir -vp || true \
+	&& find /usr/local -name src | xargs -r find | xargs rmdir -p || true \
 	&& scanelf --nobanner -E ET_EXEC -BF '%F' --recursive /usr/local | xargs -r strip --strip-all \
 	&& scanelf --nobanner -E ET_DYN -BF '%F' --recursive /usr/local | xargs -r strip --strip-unneeded \
 	&& runDeps="$( \
