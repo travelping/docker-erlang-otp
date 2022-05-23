@@ -13,6 +13,7 @@ LABEL org.opencontainers.image.version=$OTP_VERSION
 ADD ./patches /patches
 RUN set -xe \
 	&& OTP_DOWNLOAD_URL="https://github.com/erlang/otp/releases/download/OTP-$OTP_VERSION/otp_src_$OTP_VERSION.tar.gz" \
+	&& apk upgrade --no-cache \
 	&& apk add --no-cache --virtual .fetch-deps \
 		curl \
 		ca-certificates \
