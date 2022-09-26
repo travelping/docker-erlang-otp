@@ -1,19 +1,19 @@
 {
     "otp": [
 	{
-	    "major": "23.3",
-	    "version": "23.3.4.15",
-	    "download_sha256": "16a82292e14de16943825936e17d9b71e2875a89717596f4023e5a03bf20e6ec"
-	},
-	{
 	    "major": "24.3",
-	    "version": "24.3.4.2",
-	    "download_sha256": "0376d50f867a29426d47600056e8cc49c95b51ef172b6b9030628e35aecd46af"
+	    "version": "24.3.4.5",
+	    "download_sha256": "0b57d49e62958350676e8f32a39008d420dca4bc20f2d7e38c0671ab2ba62f14"
 	},
 	{
 	    "major": "25.0",
-	    "version": "25.0.2",
-	    "download_sha256": "6a5cbc8d0f18e7a7fd2fb3d1567e2b70737ee4124cb22980ad4ed663c61e010e"
+	    "version": "25.0.4",
+	    "download_sha256": "8fc707f92a124b2aeb0f65dcf9ac8e27b2a305e7bcc4cc1b2fdf770eec0165bf"
+	},
+	{
+	    "major": "25.1",
+	    "version": "25.1",
+	    "download_sha256": "a5ea27c1e07511a84bdd869c37f5e254f198c1cecf68ee9c8fedd23010750c31"
 	}
     ],
     "rebar3": [
