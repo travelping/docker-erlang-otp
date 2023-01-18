@@ -19,7 +19,7 @@ jobs:
         run: |
           matrix=$(jq -c '{"otp" : [ .otp[].major ], "rebar3" : [ .rebar3[].version ]}' versions.json)
           echo "Matrix: $matrix"
-          echo "::set-output name=matrix::$matrix"
+          echo "matrix=$matrix" >> $GITHUB_OUTPUT
 
   images:
     needs: matrix
@@ -38,7 +38,7 @@ jobs:
           load=$(jq -cr '(.otp[] | select(.major == "${{ matrix.otp }}") | with_entries(.key |= "OTP_" + ascii_upcase)) * (.rebar3[] | select(.version == "${{ matrix.rebar3 }}") | with_entries(.key |= "REBAR3_" + ascii_upcase))' versions.json)
           tag=$(echo $load | jq -cr ".OTP_VERSION + \":\" + .REBAR3_VERSION + \":$GITHUB_RUN_ID\"" | sha256sum | cut -b -7)
           load=$(echo "$load" | jq -cr ". + {\"TAG\":\"$tag\"}")
-          echo "::set-output name=env::$load"
+          echo "env=$load" >> $GITHUB_OUTPUT
       -
         name: Docker Metadata
         env: ${{ fromJson(steps.load-env.outputs.env) }}
