@@ -14,13 +14,13 @@
 	},
 	{
 	    "alpine": "3.16",
-	    "major": "25.1.2",
+	    "major": "25.1",
 	    "version": "25.1.2",
 	    "download_sha256": "5442dea694e7555d479d80bc81f1428020639c258f8e40b2052732d1cc95cca5"
 	},
 	{
 	    "alpine": "3.17",
-	    "major": "25.2.1",
+	    "major": "25.2",
 	    "version": "25.2.1",
 	    "download_sha256": "d67312017464529603f60a36f4bfb891b6cf7637a375abb27c92ee79ecd14cd4"
 	}
