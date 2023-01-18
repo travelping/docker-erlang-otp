@@ -62,6 +62,7 @@ jobs:
         uses: redhat-actions/buildah-build@v2
         with:
           build-args: |
+            ALPINE_VERSION=alpine:${{ env.OTP_ALPINE }}
             OTP_VERSION=${{ env.OTP_VERSION }}
             OTP_DOWNLOAD_SHA256=${{ env.OTP_DOWNLOAD_SHA256 }}
             REBAR3_VERSION=${{ env.REBAR3_VERSION }}
