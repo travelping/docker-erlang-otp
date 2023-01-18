@@ -1,21 +1,25 @@
 {
     "otp": [
 	{
+	    "alpine": "3.16",
 	    "major": "24.3",
 	    "version": "24.3.4.8",
 	    "download_sha256": "3d8ca72146cc08f1084e4e0fcaec31621108fd88ad1368f01dae3b8fb628e859"
 	},
 	{
+	    "alpine": "3.16",
 	    "major": "25.0",
 	    "version": "25.0.4",
 	    "download_sha256": "8fc707f92a124b2aeb0f65dcf9ac8e27b2a305e7bcc4cc1b2fdf770eec0165bf"
 	},
 	{
+	    "alpine": "3.16",
 	    "major": "25.1.2",
 	    "version": "25.1.2",
 	    "download_sha256": "5442dea694e7555d479d80bc81f1428020639c258f8e40b2052732d1cc95cca5"
 	},
 	{
+	    "alpine": "3.17",
 	    "major": "25.2.1",
 	    "version": "25.2.1",
 	    "download_sha256": "d67312017464529603f60a36f4bfb891b6cf7637a375abb27c92ee79ecd14cd4"
