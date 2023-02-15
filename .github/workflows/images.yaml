@@ -32,6 +32,18 @@ jobs:
         name: Checkout
         uses: actions/checkout@v3
       -
+        name: Choose Repository
+        id: repo
+        run: |
+          case ${{ github.ref }} in
+            refs/heads/master)
+                echo "project=alpine-erlang" >> $GITHUB_OUTPUT
+                ;;
+            *)
+                echo "project=alpine-erlang-dev" >> $GITHUB_OUTPUT
+                ;;
+          esac
+      -
         name: Load Env
         id: load-env
         run: |
@@ -46,7 +58,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            quay.io/travelping/alpine-erlang
+            quay.io/travelping/${{ steps.repo.outputs.project }}
           tags: |
             type=raw,value=${{ env.TAG }}
             type=raw,value=${{ env.OTP_MAJOR }}
