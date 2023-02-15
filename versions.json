@@ -1,30 +1,35 @@
 {
     "otp": {
 	"24.3":	{
+	    "platforms": "linux/amd64",
 	    "alpine": "3.16",
 	    "rebar3": "3.20",
 	    "version": "24.3.4.17",
 	    "download_sha256": "0bf449184ef4ca71f9af79fc086d941f4532922e01957e84a4fec192c2db5c0c"
 	},
 	"25.3":	{
+	    "platforms": "linux/amd64",
 	    "alpine": "3.17",
 	    "rebar3": "3.20",
 	    "version": "25.3.2.20",
 	    "download_sha256": "9dda848291428c02d8373f32da5dabf7c1a1478d9cba268fa85475eb26371fe7"
 	},
 	"26.2":	{
+	    "platforms": "linux/amd64",
 	    "alpine": "3.19",
 	    "rebar3": "3.22.1",
 	    "version": "26.2.5.11",
 	    "download_sha256": "69cf6c2cc4e54e8d0bab8f9893f0b61dee10bff575c3535d47b6057a468751b1"
 	},
 	"27.2":	{
+	    "platforms": "linux/amd64,linux/arm64",
 	    "alpine": "3.21",
 	    "rebar3": "3.24.0",
 	    "version": "27.2.4",
 	    "download_sha256": "2b98483f73570203015c1d1f87f29c2d0208a8fc7220af2225cf1eb3dfd508f6"
 	},
 	"27.3":	{
+	    "platforms": "linux/amd64,linux/arm64",
 	    "alpine": "3.21",
 	    "rebar3": "3.24.0",
 	    "version": "27.3.3",
@@ -32,6 +37,7 @@
 	},
 	"28.0-rc4":	{
 	    "alpine": "edge",
+	    "platforms": "linux/amd64,linux/arm64",
 	    "rebar3": "3.24.0-23-gaf0a425",
 	    "version": "28.0-rc4",
 	    "download_sha256": "abd35efea2b886813ab250f62b61d5a8c17f89bba7fd55c1c7f5aec15576f1a8"

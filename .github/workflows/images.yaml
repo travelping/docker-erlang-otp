@@ -8,7 +8,7 @@ on:
 
 jobs:
   matrix:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
@@ -24,7 +24,7 @@ jobs:
 
   images:
     needs: matrix
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       matrix: ${{ fromJson(needs.matrix.outputs.matrix) }}
       fail-fast: false
@@ -52,6 +52,14 @@ jobs:
           tag=$(echo $load | jq -cr ".OTP_VERSION + \":\" + .REBAR3_VERSION + \":$GITHUB_RUN_ID\"" | sha256sum | cut -b -7)
           load=$(echo "$load" | jq -cr ". + {\"TAG\":\"$tag\"}")
           echo "env=$load" >> $GITHUB_OUTPUT
+          case ${{ matrix.otp }} in
+            27.*|28.*)
+                echo "ERL_AFLAGS=+JMsingle true" >> $GITHUB_OUTPUT
+                ;;
+            *)
+                echo "ERL_AFLAGS=" >> $GITHUB_OUTPUT
+                ;;
+          esac
       -
         name: Docker Metadata
         env: ${{ fromJson(steps.load-env.outputs.env) }}
@@ -68,8 +76,8 @@ jobs:
         name: Install Packages
         run: |
           sudo apt update
-          sudo apt full-upgrade -y
           sudo apt install qemu-user-static buildah podman
+          sudo systemctl --system try-restart systemd-binfmt.service
       -
         name: Build Image
         env: ${{ fromJson(steps.load-env.outputs.env) }}
@@ -82,13 +90,11 @@ jobs:
             OTP_DOWNLOAD_SHA256=${{ env.OTP_DOWNLOAD_SHA256 }}
             REBAR3_VERSION=${{ env.REBAR3_VERSION }}
             REBAR3_DOWNLOAD_SHA256=${{ env.REBAR3_DOWNLOAD_SHA256 }}
+            ERL_AFLAGS=${{ env.ERL_AFLAGS }}
           image: ${{ steps.meta.outputs.images }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          platforms: linux/amd64
-          # building Erlang/OTP 25.0 for arm64 on QEMU  user emulation is broken,
-          # see https://erlangforums.com/t/otp-25-0-rc3-release-candidate-3-is-released/1317/24
-          # platforms: linux/amd64,linux/arm64
+          platforms: ${{ env.OTP_PLATFORMS }}
           extra-args: |
             --security-opt seccomp=unconfined
           oci: true
