@@ -23,6 +23,12 @@
 	    "major": "25.2",
 	    "version": "25.2.1",
 	    "download_sha256": "d67312017464529603f60a36f4bfb891b6cf7637a375abb27c92ee79ecd14cd4"
+	},
+	{
+	    "alpine": "3.17",
+	    "major": "26.0",
+	    "version": "26.0-rc1",
+	    "download_sha256": "04ffd9bc43f78186750d13052ef99b350c2b4b503fb088077b524a4a5cdb1d88"
 	}
     ],
     "rebar3": [
