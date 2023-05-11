@@ -31,7 +31,7 @@
 	    "download_sha256": "aed4e4726cdc587ab820c8379d63e511e46a1b1cc0c59d6a720b51ae625b2510"
 	},
 	{
-	    "alpine": "3.17",
+	    "alpine": "3.18",
 	    "major": "26.0",
 	    "version": "26.0-rc3",
 	    "download_sha256": "ce962175c4d90161a7247d8e2e4ae36f9d8cc0214c8f52dba8ba84a82afc096f"
