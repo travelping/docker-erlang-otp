@@ -33,8 +33,8 @@
 	{
 	    "alpine": "3.18",
 	    "major": "26.0",
-	    "version": "26.0-rc3",
-	    "download_sha256": "ce962175c4d90161a7247d8e2e4ae36f9d8cc0214c8f52dba8ba84a82afc096f"
+	    "version": "26.0",
+	    "download_sha256": "3ff3c53d7ef9a45b5720e95b8756269c1a1b58eb51accc992ca97522fdb234d4"
 	}
     ],
     "rebar3": [
