@@ -2,7 +2,8 @@ name: Images
 
 on:
   push:
-    branches: [ master, main, $default-branch ]
+  pull_request:
+    branches: [ $default-branch ]
   workflow_dispatch:
 
 jobs:
