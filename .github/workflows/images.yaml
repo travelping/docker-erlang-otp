@@ -73,44 +73,36 @@ jobs:
           sudo apt update
           sudo apt full-upgrade -y
           sudo apt install qemu-user-static buildah podman
-          sudo which update-binfmts
-          sudo ls /proc/sys/fs
-          sudo ls /proc/sys/fs/binfmt_misc/
-          # QEMU postinst might be wrong....
-          sudo /bin/sh `for fmt in aarch64 alpha arm armeb cris hexagon hppa m68k microblaze mips mipsel mipsn32 mipsn32el mips64 mips64el ppc ppc64 ppc64le riscv32 riscv64 s390x sh4 sh4eb sparc sparc32plus sparc64 xtensa xtensaeb; do update-binfmts --import qemu-$fmt ; done`
-          sudo ls /proc/sys/fs
-          sudo ls /proc/sys/fs/binfmt_misc/
-
-      # -
-      #   name: Build Image
-      #   env: ${{ fromJson(steps.load-env.outputs.env) }}
-      #   id: build-image
-      #   uses: redhat-actions/buildah-build@v2
-      #   with:
-      #     build-args: |
-      #       ALPINE_VERSION=alpine:${{ env.OTP_ALPINE }}
-      #       OTP_VERSION=${{ env.OTP_VERSION }}
-      #       OTP_DOWNLOAD_SHA256=${{ env.OTP_DOWNLOAD_SHA256 }}
-      #       REBAR3_VERSION=${{ env.REBAR3_VERSION }}
-      #       REBAR3_DOWNLOAD_SHA256=${{ env.REBAR3_DOWNLOAD_SHA256 }}
-      #     image: ${{ steps.meta.outputs.images }}
-      #     tags: ${{ steps.meta.outputs.tags }}
-      #     labels: ${{ steps.meta.outputs.labels }}
-      #     platforms: linux/amd64,linux/arm64
-      #     containerfiles: |
-      #       ./Containerfile
-      # -
-      #   name: Check images created
-      #   run: buildah images
-      # -
-      #   name: Push To Harbor
-      #   id: push-to-harbor
-      #   uses: redhat-actions/push-to-registry@v2
-      #   with:
-      #     image: ${{ steps.build-image.outputs.image }}
-      #     tags: ${{ steps.build-image.outputs.tags }}
-      #     username: ${{ secrets.QUAY_USERNAME }}
-      #     password: ${{ secrets.QUAY_TOKEN }}
-      # -
-      #   name: Print image url
-      #   run: echo "Image pushed to ${{ steps.push-to-harbor.outputs.registry-paths }}"
+      -
+        name: Build Image
+        env: ${{ fromJson(steps.load-env.outputs.env) }}
+        id: build-image
+        uses: redhat-actions/buildah-build@v2
+        with:
+          build-args: |
+            ALPINE_VERSION=alpine:${{ env.OTP_ALPINE }}
+            OTP_VERSION=${{ env.OTP_VERSION }}
+            OTP_DOWNLOAD_SHA256=${{ env.OTP_DOWNLOAD_SHA256 }}
+            REBAR3_VERSION=${{ env.REBAR3_VERSION }}
+            REBAR3_DOWNLOAD_SHA256=${{ env.REBAR3_DOWNLOAD_SHA256 }}
+          image: ${{ steps.meta.outputs.images }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          platforms: linux/amd64,linux/arm64
+          containerfiles: |
+            ./Containerfile
+      -
+        name: Check images created
+        run: buildah images
+      -
+        name: Push To Harbor
+        id: push-to-harbor
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.build-image.outputs.image }}
+          tags: ${{ steps.build-image.outputs.tags }}
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_TOKEN }}
+      -
+        name: Print image url
+        run: echo "Image pushed to ${{ steps.push-to-harbor.outputs.registry-paths }}"
