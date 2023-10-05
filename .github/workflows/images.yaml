@@ -48,7 +48,7 @@ jobs:
         name: Load Env
         id: load-env
         run: |
-          load=$(jq -cr '(.otp."${{ matrix.otp }}" | with_entries(.key |= "OTP_" + ascii_upcase)) * (.rebar3."\(.otp."${{ matrix.otp }}".rebar3)" | with_entries(.key |= "REBAR3_" + ascii_upcase))' versions.json)
+          load=$(jq -cr '{"OTP_MAJOR": "${{ matrix.otp }}"} * (.otp."${{ matrix.otp }}" | with_entries(.key |= "OTP_" + ascii_upcase)) * (.rebar3."\(.otp."${{ matrix.otp }}".rebar3)" | with_entries(.key |= "REBAR3_" + ascii_upcase))' versions.json)
           tag=$(echo $load | jq -cr ".OTP_VERSION + \":\" + .REBAR3_VERSION + \":$GITHUB_RUN_ID\"" | sha256sum | cut -b -7)
           load=$(echo "$load" | jq -cr ". + {\"TAG\":\"$tag\"}")
           echo "env=$load" >> $GITHUB_OUTPUT
