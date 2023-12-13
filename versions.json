@@ -23,6 +23,12 @@
 	    "rebar3": "3.22.1",
 	    "version": "26.1.2",
 	    "download_sha256": "f1074cf3a54f1f87e66027d5abebab2fa76a0243453fa58bc5f30d0ce0313921"
+	},
+	"26.2":	{
+	    "alpine": "3.19",
+	    "rebar3": "3.22.1",
+	    "version": "26.2",
+	    "download_sha256": "575df666c678bbbcf97fbf8dec532db62c25b3aec005a2ba1348982c8e9661bb"
 	}
     },
     "rebar3": {

@@ -36,8 +36,8 @@ RUN set -xe \
 		unixodbc-dev \
 		lksctp-tools-dev \
 		tar \
-	&& apk add --no-cache --virtual .edge-deps \
-		--repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing \
+	&& apk add --no-cache --virtual .quilt-deps \
+		--repository=https://dl-cdn.alpinelinux.org/alpine/v3.19/community \
 		quilt \
 	&& export ERL_TOP="/usr/src/otp_src_${OTP_VERSION%%@*}" \
 	&& mkdir -vp $ERL_TOP \
@@ -77,6 +77,6 @@ RUN set -xe \
 		$runDeps \
 		lksctp-tools \
 		ca-certificates \
-	&& apk del .fetch-deps .build-deps .edge-deps
+	&& apk del .fetch-deps .build-deps .quilt-deps
 
 CMD ["erl"]
