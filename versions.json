@@ -28,7 +28,7 @@
 	    "alpine": "3.19",
 	    "rebar3": "3.22.1",
 	    "version": "26.2",
-	    "download_sha256": "575df666c678bbbcf97fbf8dec532db62c25b3aec005a2ba1348982c8e9661bb"
+	    "download_sha256": "a85fa668a292868a7dc8c8ac18615995051392acbfbfa9cef1e8d84cf417ca87"
 	}
     },
     "rebar3": {
