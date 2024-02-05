@@ -74,6 +74,7 @@ jobs:
           sudo apt full-upgrade -y
           sudo apt install qemu-user-static buildah podman
           apt-cache policy qemu-user-static
+          ls /proc/sys/fs/binfmt_misc/
       -
         name: Build Image
         env: ${{ fromJson(steps.load-env.outputs.env) }}
