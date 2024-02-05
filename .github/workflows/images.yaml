@@ -72,7 +72,8 @@ jobs:
           sudo add-apt-repository ppa:aschultz/backports
           sudo apt update
           sudo apt full-upgrade -y
-          sudo apt install qemu-user-static qemu-user-binfmt buildah podman
+          sudo apt install qemu-user-static buildah podman
+          sudo systemctl --system try-restart systemd-binfmt.service
           apt-cache policy qemu-user-static
           ls /proc/sys/fs/binfmt_misc/
       -
