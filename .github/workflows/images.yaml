@@ -91,7 +91,7 @@ jobs:
           image: ${{ steps.meta.outputs.images }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          platforms: linux/arm64
+          platforms: ${{ env.OTP_PLATFORMS }}
           containerfiles: |
             ./Containerfile
       -
