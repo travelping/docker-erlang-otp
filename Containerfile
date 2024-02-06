@@ -68,7 +68,7 @@ RUN set -xe \
 	&& tar -xzf rebar3-src.tar.gz -C /usr/src/rebar3-src --strip-components=1 \
 	&& rm rebar3-src.tar.gz \
 	&& cd /usr/src/rebar3-src \
-	&& HOME=$PWD ./bootstrap \
+	&& HOME=$PWD ERL_AFLAGS="+JMsingle true" ./bootstrap \
 	&& install -v ./rebar3 /usr/local/bin/ \
 	&& rm -rf /usr/src/rebar3-src \
 	&& apk add --virtual .erlang-rundeps \
