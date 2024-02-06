@@ -30,7 +30,6 @@ RUN set -xe \
 		libc-dev \
 		linux-headers=5.4.5-r1 \
 		make \
-		autoconf \
 		ncurses-dev \
 		openssl-dev \
 		unixodbc-dev \
@@ -45,7 +44,6 @@ RUN set -xe \
 	&& rm otp-src.tar.gz \
 	&& ( cd $ERL_TOP \
 	  && if [ -f /patches/$OTP_VERSION/series ]; then QUILT_PATCHES=/patches/$OTP_VERSION quilt push -a ; fi \
-	  && ./otp_build autoconf \
 	  && gnuArch="$(dpkg-architecture --query DEB_HOST_GNU_TYPE)" \
 	  && ./configure --build="$gnuArch" \
 	  && make -j$(getconf _NPROCESSORS_ONLN) \
