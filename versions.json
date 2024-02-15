@@ -3,42 +3,32 @@
 	"24.3":	{
 	    "alpine": "3.16",
 	    "rebar3": "3.20",
-	    "version": "24.3.4.14",
-	    "download_sha256": "137acf8c11edb567aa91a19fe3a00b61918fe8b41a89236277bef97a83e5b009"
+	    "version": "24.3.4.16",
+	    "download_sha256": "aad5d79ab7554b5827298024b722dbbf54bf01b9a5737e633e93e5953fadc4f9"
 	},
 	"25.3":	{
 	    "alpine": "3.17",
 	    "rebar3": "3.20",
-	    "version": "25.3.2.7",
-	    "download_sha256": "a8662859d153d3c4253c6a3a4d1538d0f32ce1cf02bb5484b17c9c176da37b37"
-	},
-	"26.0":	{
-	    "alpine": "3.18",
-	    "rebar3": "3.22",
-	    "version": "26.0.2",
-	    "download_sha256": "47853ea9230643a0a31004433f07a71c1b92d6e0094534f629e3b75dbc62f193"
-	},
-	"26.1":	{
-	    "alpine": "3.18",
-	    "rebar3": "3.22.1",
-	    "version": "26.1.2",
-	    "download_sha256": "f1074cf3a54f1f87e66027d5abebab2fa76a0243453fa58bc5f30d0ce0313921"
+	    "version": "25.3.2.9",
+	    "download_sha256": "b305190e01e84eddb26d0140637f26adf674c87351c679f3bbefc8685d22cc05"
 	},
 	"26.2":	{
 	    "alpine": "3.19",
 	    "rebar3": "3.22.1",
-	    "version": "26.2",
-	    "download_sha256": "a85fa668a292868a7dc8c8ac18615995051392acbfbfa9cef1e8d84cf417ca87"
+	    "version": "26.2.2",
+	    "download_sha256": "d537ff4ac5d8c1cb507aedaf7198fc1f155ea8aa65a8d83edb35c2802763cc28"
+	},
+	"27.0":	{
+	    "alpine": "3.19",
+	    "rebar3": "3.22.1",
+	    "version": "27.0-rc1",
+	    "download_sha256": "203179f94257901073aff73e4dfacf7776085ba2bcc5082d91a7cae7fc38694f"
 	}
-    },
+   },
     "rebar3": {
 	"3.20": {
 	    "version": "3.20.0",
 	    "download_sha256": "53ed7f294a8b8fb4d7d75988c69194943831c104d39832a1fa30307b1a8593de"
-	},
-	"3.22": {
-	    "version": "3.22.0",
-	    "download_sha256": "28b256038b445ec818d2cc33000b3217f42a946219ede55ab5970503bfcf6647"
 	},
 	"3.22.1": {
 	    "version": "3.22.1",
