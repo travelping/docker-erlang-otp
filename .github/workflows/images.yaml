@@ -14,7 +14,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       -
         id: set-matrix
         run: |
@@ -31,7 +31,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       -
         name: Choose Repository
         id: repo
@@ -56,7 +56,7 @@ jobs:
         name: Docker Metadata
         env: ${{ fromJson(steps.load-env.outputs.env) }}
         id: meta
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v5
         with:
           images: |
             quay.io/travelping/${{ steps.repo.outputs.project }}
