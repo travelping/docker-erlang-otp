@@ -3,20 +3,20 @@
 	"24.3":	{
 	    "alpine": "3.16",
 	    "rebar3": "3.20",
-	    "version": "24.3.4.16",
-	    "download_sha256": "aad5d79ab7554b5827298024b722dbbf54bf01b9a5737e633e93e5953fadc4f9"
+	    "version": "24.3.4.17",
+	    "download_sha256": "0bf449184ef4ca71f9af79fc086d941f4532922e01957e84a4fec192c2db5c0c"
 	},
 	"25.3":	{
 	    "alpine": "3.17",
 	    "rebar3": "3.20",
-	    "version": "25.3.2.10",
-	    "download_sha256": "0a7338415c8eb6ae25664bfd1a10631c293838ef072665223a524831b823a8b7"
+	    "version": "25.3.2.12",
+	    "download_sha256": "fd690c843100c3268ac7d8ada02af8310e8520bf32581eb72f28c26ae61b46ad"
 	},
 	"26.2":	{
 	    "alpine": "3.19",
 	    "rebar3": "3.22.1",
-	    "version": "26.2.3",
-	    "download_sha256": "2c4e61b24fb1c131d9f30cfe2415320899180debdb71fb59195c72bd9a4ab625"
+	    "version": "26.2.5",
+	    "download_sha256": "de155c4ad9baab2b9e6c96dbd03bf955575a04dd6feee9c08758beb28484c9f6"
 	},
 	"27.0":	{
 	    "alpine": "3.19",
