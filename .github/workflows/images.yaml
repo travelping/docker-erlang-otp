@@ -89,6 +89,9 @@ jobs:
           # building Erlang/OTP 25.0 for arm64 on QEMU  user emulation is broken,
           # see https://erlangforums.com/t/otp-25-0-rc3-release-candidate-3-is-released/1317/24
           # platforms: linux/amd64,linux/arm64
+          extra-args: |
+            --security-opt seccomp=unconfined
+          oci: true
           containerfiles: |
             ./Containerfile
       -

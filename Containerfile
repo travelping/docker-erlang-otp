@@ -41,7 +41,7 @@ RUN set -xe \
 		quilt \
 	&& export ERL_TOP="/usr/src/otp_src_${OTP_VERSION%%@*}" \
 	&& mkdir -vp $ERL_TOP \
-	&& tar -xzf otp-src.tar.gz -C $ERL_TOP --strip-components=1 --no-same-owner \
+	&& tar -xzf otp-src.tar.gz -C $ERL_TOP --strip-components=1 --no-same-owner --no-same-permissions \
 	&& rm otp-src.tar.gz \
 	&& ( cd $ERL_TOP \
 	  && if [ -f /patches/$OTP_VERSION/series ]; then QUILT_PATCHES=/patches/$OTP_VERSION quilt push -a ; fi \
@@ -67,7 +67,7 @@ RUN set -xe \
 	&& curl -fSL -o rebar3-src.tar.gz "$REBAR3_DOWNLOAD_URL" \
 	&& echo "${REBAR3_DOWNLOAD_SHA256}  rebar3-src.tar.gz" | sha256sum -c - \
 	&& mkdir -p /usr/src/rebar3-src \
-	&& tar -xzf rebar3-src.tar.gz -C /usr/src/rebar3-src --strip-components=1 --no-same-owner \
+	&& tar -xzf rebar3-src.tar.gz -C /usr/src/rebar3-src --strip-components=1 --no-same-owner --no-same-permissions \
 	&& rm rebar3-src.tar.gz \
 	&& cd /usr/src/rebar3-src \
 	&& HOME=$PWD ./bootstrap \
