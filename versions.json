@@ -35,6 +35,12 @@
 	    "rebar3": "3.24.0",
 	    "version": "27.2.2",
 	    "download_sha256": "4f74095a24e48978f062b077651ac0876c5d3a42799b20fd996923bf15b5df29"
+	},
+	"28.0-rc1":	{
+	    "alpine": "3.21",
+	    "rebar3": "3.24.0",
+	    "version": "28.0-rc1",
+	    "download_sha256": "cab460bdbecb6afc8a0d016127120b14fa384a7db37a15f2750bef2e1a12d330"
 	}
    },
     "rebar3": {
