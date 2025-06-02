@@ -31,8 +31,8 @@
 	    "download_sha256": "c3a0a0b51df08f877eed88378f3d2da7026a75b8559803bd78071bb47cd4783b"
 	},
 	"28.0":	{
-	    "alpine": "edge",
-	    "rebar3": "3.24.0-23-gaf0a425",
+	    "alpine": "3.22",
+	    "rebar3": "3.25.0",
 	    "version": "28.0",
 	    "download_sha256": "71b5bf16e5b7b5d9fae98576c87aceac447964aaa3b4b457a5f60906839af92c"
 	}
@@ -50,9 +50,9 @@
 	    "version": "3.24.0",
 	    "download_sha256": "391b0eaa2825bb427fef1e55a0d166493059175f57a33b00346b84a20398216c"
 	},
-	"3.24.0-23-gaf0a425": {
-	  "version": "af0a4253080db9d8bfc10e5aea399e3ce7a466ff",
-	    "download_sha256": "cc3f026d2100e2079ad19b0c7eae819e519a60810ef6173c87cd75de75e1865f"
+	"3.25.0": {
+	    "version": "3.25.0",
+	    "download_sha256": "7d3f42dc0e126e18fb73e4366129f11dd37bad14d404f461e0a3129ce8903440"
 	}
     }
 }
