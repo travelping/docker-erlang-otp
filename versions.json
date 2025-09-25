@@ -1,47 +1,31 @@
 {
     "otp": {
-	"24.3":	{
-	    "alpine": "3.16",
-	    "rebar3": "3.20",
-	    "version": "24.3.4.17",
-	    "download_sha256": "0bf449184ef4ca71f9af79fc086d941f4532922e01957e84a4fec192c2db5c0c"
-	},
-	"25.3":	{
-	    "alpine": "3.17",
-	    "rebar3": "3.20",
-	    "version": "25.3.2.21",
-	    "download_sha256": "99296fcd97a2053c5fcde7dc0ded2ba261a3baf1491c745fca71bd9804d51443"
-	},
 	"26.2":	{
 	    "alpine": "3.19",
 	    "rebar3": "3.22.1",
-	    "version": "26.2.5.14",
-	    "download_sha256": "39f5e25709820606ab11c867285a2132ac4b2999827af0071a1fb2ef1589ad9a"
-	},
-	"27.2":	{
-	    "alpine": "3.21",
-	    "rebar3": "3.24.0",
-	    "version": "27.2.4",
-	    "download_sha256": "2b98483f73570203015c1d1f87f29c2d0208a8fc7220af2225cf1eb3dfd508f6"
+	    "version": "26.2.5.15",
+	    "download_sha256": "28e6d63d82927f132d56289dd3c428ef8bce6bf2283c8549aa0a7afca1a8fe3b"
 	},
 	"27.3":	{
 	    "alpine": "3.21",
 	    "rebar3": "3.24.0",
-	    "version": "27.3.4.2",
-	    "download_sha256": "f696dc22812745d98a87af2aa599ffa893c7cf8dfa16be8b31db0e30d8ffa85c"
+	    "version": "27.3.4.3",
+	    "download_sha256": "597618c75890e8e606033bc8dbf6ec87fdf4e892c10b4912ae3c9a4f01384579"
 	},
 	"28.0":	{
 	    "alpine": "3.22",
 	    "rebar3": "3.25.0",
-	    "version": "28.0.2",
-	    "download_sha256": "ce43dc8a29ad6bc1b6dbfc97f053d2e850b4a4c290eca065058d6b33ce476db5"
+	    "version": "28.0.4",
+	    "download_sha256": "687c0abece0a12d58517c1892bf45df6d5db23d1b6098d59bdb0c77bbc4e88e8"
+	},
+	"28.1":	{
+	    "alpine": "3.22",
+	    "rebar3": "3.25.1",
+	    "version": "28.1",
+	    "download_sha256": "c7c6fe06a3bf0031187d4cb10d30e11de119b38bdba7cd277898f75d53bdb218"
 	}
    },
     "rebar3": {
-	"3.20": {
-	    "version": "3.20.0",
-	    "download_sha256": "53ed7f294a8b8fb4d7d75988c69194943831c104d39832a1fa30307b1a8593de"
-	},
 	"3.22.1": {
 	    "version": "3.22.1",
 	    "download_sha256": "2855b5784300865d2e43cb7a135cb2bba144cf15214c619065b918afc8cc6eb9"
@@ -53,6 +37,10 @@
 	"3.25.0": {
 	    "version": "3.25.0",
 	    "download_sha256": "7d3f42dc0e126e18fb73e4366129f11dd37bad14d404f461e0a3129ce8903440"
+	},
+	"3.25.1": {
+	    "version": "3.25.1",
+	    "download_sha256": "458d6ceaf7822dd7682288354ab3ba74e14b3ed11cc5b551af9eb312de894106"
 	}
     }
 }
