@@ -113,4 +113,6 @@ jobs:
           password: ${{ secrets.QUAY_TOKEN }}
       -
         name: Print image url
-        run: echo "Image pushed to ${{ steps.push-to-harbor.outputs.registry-paths }}"
+        run: |
+          echo -e "Image pushed to:\n" | tee -a $GITHUB_STEP_SUMMARY
+          echo "${{ steps.push-to-harbor.outputs.registry-paths }}" | yq -P | tee -a $GITHUB_STEP_SUMMARY
