@@ -1,0 +1,42 @@
+name: 'Load OTP Environment'
+description: 'Load OTP version information from versions.json'
+inputs:
+  otp-version:
+    description: 'OTP major version (e.g., 27.3)'
+    required: true
+outputs:
+  env:
+    description: 'JSON object with all environment variables'
+    value: ${{ steps.load-env.outputs.env }}
+  otp-major:
+    description: 'OTP major version'
+    value: ${{ steps.load-env.outputs.otp-major }}
+  otp-version:
+    description: 'Full OTP version'
+    value: ${{ steps.load-env.outputs.otp-version }}
+  otp-alpine:
+    description: 'Alpine version'
+    value: ${{ steps.load-env.outputs.otp-alpine }}
+  alpine-major-minor:
+    description: 'Alpine major.minor version'
+    value: ${{ steps.load-env.outputs.alpine-major-minor }}
+  build-tag:
+    description: 'Unique build tag'
+    value: ${{ steps.load-env.outputs.build-tag }}
+
+runs:
+  using: 'composite'
+  steps:
+    - id: load-env
+      shell: bash
+      run: |
+        load=$(jq -cr '{"OTP_MAJOR": "${{ inputs.otp-version }}"} * (.otp."${{ inputs.otp-version }}" | with_entries(.key |= "OTP_" + ascii_upcase)) * (.rebar3."\(.otp."${{ inputs.otp-version }}".rebar3)" | with_entries(.key |= "REBAR3_" + ascii_upcase))' versions.json)
+        tag=$(echo $load | jq -cr ".OTP_VERSION + \":\" + .REBAR3_VERSION + \":$GITHUB_RUN_ID\"" | sha256sum | cut -b -7)
+        alpine_major_minor=$(echo "$load" | jq -cr '.OTP_ALPINE | split(".") | .[0:2] | join(".")')
+        load=$(echo "$load" | jq -cr ". + {\"TAG\":\"$tag\", \"ALPINE_MAJOR_MINOR\":\"$alpine_major_minor\"}")
+        echo "env=$load" >> $GITHUB_OUTPUT
+        echo "otp-major=${{ inputs.otp-version }}" >> $GITHUB_OUTPUT
+        echo "otp-version=$(echo "$load" | jq -r '.OTP_VERSION')" >> $GITHUB_OUTPUT
+        echo "otp-alpine=$(echo "$load" | jq -r '.OTP_ALPINE')" >> $GITHUB_OUTPUT
+        echo "alpine-major-minor=$(echo "$load" | jq -r '.ALPINE_MAJOR_MINOR')" >> $GITHUB_OUTPUT
+        echo "build-tag=$(echo "$load" | jq -r '.TAG')" >> $GITHUB_OUTPUT
