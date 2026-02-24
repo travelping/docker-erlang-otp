@@ -1,0 +1,13 @@
+Index: rebar3-3.26.0/vendor/relx/rebar.config
+===================================================================
+--- rebar3-3.26.0.orig/vendor/relx/rebar.config
++++ rebar3-3.26.0/vendor/relx/rebar.config
+@@ -3,7 +3,7 @@
+ {deps, [{bbmustache, "~>1.10"}]}.
+ 
+ %% Compiler Options ============================================================
+-{erl_opts, [debug_info, warnings_as_errors, inline]}.
++{erl_opts, [debug_info, warnings_as_errors, inline, nowarn_deprecated_catch]}.
+ 
+ %% Profiles ====================================================================
+ 

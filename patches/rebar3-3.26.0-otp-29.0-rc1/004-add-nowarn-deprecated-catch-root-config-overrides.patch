@@ -1,0 +1,48 @@
+Index: rebar3-3.26.0/apps/rebar/rebar.config
+===================================================================
+--- rebar3-3.26.0.orig/apps/rebar/rebar.config
++++ rebar3-3.26.0/apps/rebar/rebar.config
+@@ -65,7 +65,9 @@
+                 {overrides, [
+                     {override, erlware_commons, [
+                         {erl_opts, [no_debug_info,
+-                                    warnings_as_errors]},
++                                    warnings_as_errors,
++                                    nowarn_deprecated_catch,
++                                    nowarn_match_alias_pats]},
+                         {deps, []}, {plugins, []}]},
+                     {add, ssl_verify_hostname, [{erl_opts, [no_debug_info]}]},
+                     {add, certifi, [{erl_opts, [no_debug_info]}]},
+@@ -77,7 +79,7 @@
+                         {deps, []}, {plugins, []}]},
+                     {add, getopt, [{erl_opts, [no_debug_info]}]},
+                     {add, providers, [{erl_opts, [no_debug_info]}]},
+-                    {add, relx, [{erl_opts, [no_debug_info]}]}]}
++                    {add, relx, [{erl_opts, [no_debug_info, nowarn_deprecated_catch]}]}]}
+             ]}
+            ]}.
+ 
+Index: rebar3-3.26.0/rebar.config
+===================================================================
+--- rebar3-3.26.0.orig/rebar.config
++++ rebar3-3.26.0/rebar.config
+@@ -47,7 +47,9 @@
+         {overrides, [
+             {override, erlware_commons, [
+                 {erl_opts, [no_debug_info,
+-                            warnings_as_errors]},
++                            warnings_as_errors,
++                            nowarn_deprecated_catch,
++                            nowarn_match_alias_pats]},
+                 {deps, []}, {plugins, []}]},
+             {add, ssl_verify_hostname, [{erl_opts, [no_debug_info]}]},
+             {add, certifi, [{erl_opts, [no_debug_info]}]},
+@@ -59,7 +61,7 @@
+                 {deps, []}, {plugins, []}]},
+             {add, getopt, [{erl_opts, [no_debug_info]}]},
+             {add, providers, [{erl_opts, [no_debug_info]}]},
+-            {add, relx, [{erl_opts, [no_debug_info]}]}]}
++            {add, relx, [{erl_opts, [no_debug_info, nowarn_deprecated_catch]}]}]}
+     ]}
+ ]}.
+ 
