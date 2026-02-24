@@ -49,18 +49,9 @@ jobs:
       -
         name: Load Env
         id: load-env
-        run: |
-          load=$(jq -cr '{"OTP_MAJOR": "${{ matrix.otp }}"} * (.otp."${{ matrix.otp }}" | with_entries(.key |= "OTP_" + ascii_upcase)) * (.rebar3."\(.otp."${{ matrix.otp }}".rebar3)" | with_entries(.key |= "REBAR3_" + ascii_upcase))' versions.json)
-          tag=$(echo $load | jq -cr ".OTP_VERSION + \":\" + .REBAR3_VERSION + \":$GITHUB_RUN_ID\"" | sha256sum | cut -b -7)
-          alpine_major_minor=$(echo "$load" | jq -cr '.OTP_ALPINE | split(".") | .[0:2] | join(".")')
-          load=$(echo "$load" | jq -cr ". + {\"TAG\":\"$tag\", \"ALPINE_MAJOR_MINOR\":\"$alpine_major_minor\"}")
-          echo "env=$load" >> $GITHUB_OUTPUT
-          # Export tags for manifest job
-          echo "otp_major=${{ matrix.otp }}" >> $GITHUB_OUTPUT
-          echo "otp_version=$(echo "$load" | jq -r '.OTP_VERSION')" >> $GITHUB_OUTPUT
-          echo "otp_alpine=$(echo "$load" | jq -r '.OTP_ALPINE')" >> $GITHUB_OUTPUT
-          echo "alpine_major_minor=$(echo "$load" | jq -r '.ALPINE_MAJOR_MINOR')" >> $GITHUB_OUTPUT
-          echo "build_tag=$(echo "$load" | jq -r '.TAG')" >> $GITHUB_OUTPUT
+        uses: ./.github/actions/load-otp-env
+        with:
+          otp-version: ${{ matrix.otp }}
       -
         name: Docker Metadata
         env: ${{ fromJson(steps.load-env.outputs.env) }}
@@ -146,12 +137,9 @@ jobs:
       -
         name: Load Env
         id: load-env
-        run: |
-          load=$(jq -cr '{"OTP_MAJOR": "${{ matrix.otp }}"} * (.otp."${{ matrix.otp }}" | with_entries(.key |= "OTP_" + ascii_upcase)) * (.rebar3."\(.otp."${{ matrix.otp }}".rebar3)" | with_entries(.key |= "REBAR3_" + ascii_upcase))' versions.json)
-          tag=$(echo $load | jq -cr ".OTP_VERSION + \":\" + .REBAR3_VERSION + \":$GITHUB_RUN_ID\"" | sha256sum | cut -b -7)
-          alpine_major_minor=$(echo "$load" | jq -cr '.OTP_ALPINE | split(".") | .[0:2] | join(".")')
-          load=$(echo "$load" | jq -cr ". + {\"TAG\":\"$tag\", \"ALPINE_MAJOR_MINOR\":\"$alpine_major_minor\"}")
-          echo "env=$load" >> $GITHUB_OUTPUT
+        uses: ./.github/actions/load-otp-env
+        with:
+          otp-version: ${{ matrix.otp }}
       -
         name: Docker Metadata
         env: ${{ fromJson(steps.load-env.outputs.env) }}
@@ -237,12 +225,9 @@ jobs:
       -
         name: Load Env
         id: load-env
-        run: |
-          load=$(jq -cr '{"OTP_MAJOR": "${{ matrix.otp }}"} * (.otp."${{ matrix.otp }}" | with_entries(.key |= "OTP_" + ascii_upcase)) * (.rebar3."\(.otp."${{ matrix.otp }}".rebar3)" | with_entries(.key |= "REBAR3_" + ascii_upcase))' versions.json)
-          tag=$(echo $load | jq -cr ".OTP_VERSION + \":\" + .REBAR3_VERSION + \":$GITHUB_RUN_ID\"" | sha256sum | cut -b -7)
-          alpine_major_minor=$(echo "$load" | jq -cr '.OTP_ALPINE | split(".") | .[0:2] | join(".")')
-          load=$(echo "$load" | jq -cr ". + {\"TAG\":\"$tag\", \"ALPINE_MAJOR_MINOR\":\"$alpine_major_minor\"}")
-          echo "env=$load" >> $GITHUB_OUTPUT
+        uses: ./.github/actions/load-otp-env
+        with:
+          otp-version: ${{ matrix.otp }}
       -
         name: Install Packages
         run: |
