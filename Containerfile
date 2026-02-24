@@ -51,7 +51,6 @@ RUN set -xe \
 	  && make -j$(getconf _NPROCESSORS_ONLN) \
 	  && make install ) \
 	&& rm -rf $ERL_TOP \
-	&& rm -rf /patches \
 	&& find /usr/local -regex '/usr/local/lib/erlang/\(lib/\|erts-\).*/\(man\|doc\|obj\|c_src\|emacs\|info\|examples\)' | xargs rm -rf \
 	&& find /usr/local -name src | xargs -r find | grep -v '\.hrl$' | xargs rm -v || true \
 	&& find /usr/local -name src | xargs -r find | xargs rmdir -p || true \
@@ -70,9 +69,13 @@ RUN set -xe \
 	&& tar -xzf rebar3-src.tar.gz -C /usr/src/rebar3-src --strip-components=1 --no-same-owner --no-same-permissions \
 	&& rm rebar3-src.tar.gz \
 	&& cd /usr/src/rebar3-src \
+	&& if [ -f /patches/rebar3-$REBAR3_VERSION-otp-$OTP_VERSION/series ]; then \
+		QUILT_PATCHES=/patches/rebar3-$REBAR3_VERSION-otp-$OTP_VERSION quilt push -a ; \
+	   fi \
 	&& HOME=$PWD ./bootstrap \
 	&& install -v ./rebar3 /usr/local/bin/ \
 	&& rm -rf /usr/src/rebar3-src \
+	&& rm -rf /patches \
 	&& apk add --virtual .erlang-rundeps \
 		$runDeps \
 		lksctp-tools \
