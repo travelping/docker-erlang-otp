@@ -247,6 +247,9 @@ jobs:
             
             echo "Creating manifest: $MANIFEST_NAME"
             
+            # Remove any existing local manifest to avoid conflicts
+            podman manifest rm "$MANIFEST_NAME" 2>/dev/null || true
+            
             # Create manifest
             podman manifest create "$MANIFEST_NAME"
             
