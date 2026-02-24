@@ -35,7 +35,38 @@ Read the `versions.json` file to get the list of currently supported Erlang/OTP 
 **For each new Erlang/OTP version added:**
 - Find the latest compatible `rebar3` version.
 - Choose a suitable recent `alpine` linux release.
-- Find the `download_sha256` for the new Erlang/OTP and rebar3 versions.
+- Find the `download_sha256` for the new Erlang/OTP and rebar3 versions:
+  
+  **For Erlang/OTP versions:**
+  1. First, check for the official SHA256.txt file at:
+     ```
+     https://github.com/erlang/otp/releases/download/OTP-<version>/SHA256.txt
+     ```
+     For example: `https://github.com/erlang/otp/releases/download/OTP-28.3.2/SHA256.txt`
+  
+  2. If the SHA256.txt file exists, extract the SHA256 hash for the source tarball (`otp_src_<version>.tar.gz`).
+  
+  3. If the SHA256.txt file is missing (this happens rarely):
+     - **Ask the user** whether they want to:
+       - **Abort** the update for this version, or
+       - **Proceed** by having you fetch the source tarball and calculate the SHA256 yourself
+     - Do not assume or guess - always ask the user for their preference.
+     - If the user asks you to proceed, download the source tarball from:
+       ```
+       https://github.com/erlang/otp/releases/download/OTP-<version>/otp_src_<version>.tar.gz
+       ```
+       For example: `https://github.com/erlang/otp/releases/download/OTP-29.0-rc1/otp_src_29.0-rc1.tar.gz`
+     - Compute the SHA256 hash of the downloaded tarball
+     - **Note:** Do NOT use the GitHub archive URL (`/archive/OTP-<version>.tar.gz`) as those are repository snapshots, not official releases.
+  
+  **For rebar3 versions:**
+  - rebar3 does not publish SHA256 files for source tarballs
+  - Calculate the SHA256 by downloading the source tarball from:
+    ```
+    https://github.com/erlang/rebar3/archive/<version>.tar.gz
+    ```
+  - Compute the SHA256 hash of the downloaded tarball
+
 - If the `rebar3` version is new, add it to the `rebar3` section of `versions.json`.
 
 ### 4. Final Verification
@@ -80,7 +111,8 @@ After updating `versions.json`, review the `.github/workflows/images.yaml` file 
 
 ## Key Considerations
 
-- Always verify SHA256 checksums for downloads
+- Always verify SHA256 checksums using official SHA256.txt files from releases when available
+- If SHA256.txt is missing, consult the user before proceeding with manual calculation
 - Maintain backward compatibility by keeping the latest patch of the previous major version
 - Remove release candidates only when the stable version is released
 - Ensure alpine and rebar3 versions are compatible with the OTP version being added
