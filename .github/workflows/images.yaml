@@ -219,7 +219,7 @@ jobs:
       -
         name: Login to Registry
         run: |
-          podman login quay.io -u ${{ secrets.QUAY_USERNAME }} -p ${{ secrets.QUAY_TOKEN }}
+          echo "${{ secrets.QUAY_TOKEN }}" | podman login -u "${{ secrets.QUAY_USERNAME }}" --password-stdin quay.io
       -
         name: Create and Push Multi-arch Manifests
         env: ${{ fromJson(steps.load-env.outputs.env) }}
