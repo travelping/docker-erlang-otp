@@ -38,6 +38,7 @@ Read the `versions.json` file to get the list of currently supported Erlang/OTP 
 - Update `alpine` to the latest available version (including major alpine releases).
 - Update `rebar3` to the latest available version.
 - Update `version` and `download_sha256` if a newer prerelease (e.g., `29.0-rc2`) is available.
+- If `rebar3` is updated, remove any patch directory for the old rebar3+OTP combination from `patches/` (e.g., `patches/rebar3-3.26.0-otp-29.0-rc1/`), as those fixes are now part of the newer rebar3 release.
 
 **For each new Erlang/OTP version added:**
 - Find the latest compatible `rebar3` version.
