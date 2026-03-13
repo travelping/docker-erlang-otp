@@ -44,7 +44,7 @@
 	},
 	"29.0-rc1":	{
 	    "alpine": "3.23.3",
-	    "rebar3": "3.26.0",
+	    "rebar3": "3.27.0",
 	    "version": "29.0-rc1",
 	    "download_sha256": "ea98c87f975c12ffeb4fcb75d2b618cefea77ca02d3c2fca31a47e6d3d4db951"
 	}
