@@ -16,8 +16,10 @@ Read the `versions.json` file to get the list of currently supported Erlang/OTP 
 
 ### 3. Apply Versioning Rules
 
-**For each version in `versions.json`:**
+**For each stable version in `versions.json`:**
 - Check if there is a newer patch release available. If so, update the `version` and `download_sha256`.
+- Update `alpine` if a newer patch release of the **same alpine major version** is available (e.g., `3.23.2` → `3.23.3`). Do **not** bump to a new alpine major version (e.g., do not change `3.23.x` → `3.24.x`) for an existing stable entry.
+- **Do not** update `rebar3` for existing stable versions.
 
 **For the current major release series:**
 - Add any new minor versions that are not already in `versions.json`.
@@ -29,8 +31,14 @@ Read the `versions.json` file to get the list of currently supported Erlang/OTP 
 - For the *previous* major release series (e.g., 28.x), remove all versions except for the single latest minor/patch release (e.g., keep `28.3.1` and remove `28.0.4`, `28.1.1`, `28.2`).
 
 **For new release candidates (e.g., 29.0-rc1):**
-- Add the release candidate to the `otp` section.
+- Add the release candidate to the `otp` section with the latest compatible `rebar3` and `alpine` versions.
 - **Do not** remove any older versions when adding a release candidate.
+
+**For existing release candidates (prerelease versions) during routine updates:**
+- Update `alpine` to the latest available version (including major alpine releases).
+- Update `rebar3` to the latest available version.
+- Update `version` and `download_sha256` if a newer prerelease (e.g., `29.0-rc2`) is available.
+- If `rebar3` is updated, remove any patch directory for the old rebar3+OTP combination from `patches/` (e.g., `patches/rebar3-3.26.0-otp-29.0-rc1/`), as those fixes are now part of the newer rebar3 release.
 
 **For each new Erlang/OTP version added:**
 - Find the latest compatible `rebar3` version.
@@ -116,3 +124,5 @@ After updating `versions.json`, review the `.github/workflows/images.yaml` file 
 - Maintain backward compatibility by keeping the latest patch of the previous major version
 - Remove release candidates only when the stable version is released
 - Ensure alpine and rebar3 versions are compatible with the OTP version being added
+- For prerelease (RC) versions, always update `alpine` and `rebar3` to the latest available during routine updates
+- For stable versions, never update `rebar3`; only update `alpine` to a newer patch within the same major alpine series
