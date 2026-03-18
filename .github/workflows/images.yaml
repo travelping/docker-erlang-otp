@@ -25,6 +25,9 @@ jobs:
   images:
     needs: matrix
     runs-on: ubuntu-22.04
+    permissions:
+      id-token: write      # for keyless OIDC signing
+      attestations: write  # for GitHub native provenance
     strategy:
       matrix: ${{ fromJson(needs.matrix.outputs.matrix) }}
       fail-fast: false
@@ -76,6 +79,12 @@ jobs:
           sudo apt full-upgrade -y
           sudo apt install qemu-user-static buildah podman
       -
+        name: Install Cosign
+        uses: sigstore/cosign-installer@ba7bc0a3fef59531c69a25acd34668d6d3fe6f22 # v4.1.0
+      -
+        name: Download Syft
+        uses: anchore/sbom-action/download-syft@57aae528053a48a3f6235f2d9461b05fbcb7366d # v0.23.1
+      -
         name: Build Image
         env: ${{ fromJson(steps.load-env.outputs.env) }}
         id: build-image
@@ -111,6 +120,31 @@ jobs:
           tags: ${{ steps.build-image.outputs.tags }}
           username: ${{ secrets.QUAY_USERNAME }}
           password: ${{ secrets.QUAY_TOKEN }}
+      -
+        name: Generate SBOM
+        env: ${{ fromJson(steps.load-env.outputs.env) }}
+        run: |
+          IMAGE="quay.io/travelping/${{ steps.repo.outputs.project }}:${{ env.OTP_VERSION }}"
+          syft "${IMAGE}@${{ steps.push-to-harbor.outputs.digest }}" \
+            -o cyclonedx-json=sbom.cyclonedx.json
+      -
+        name: Attest Build Provenance
+        uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32 # v4.1.0
+        with:
+          subject-name: quay.io/travelping/${{ steps.repo.outputs.project }}
+          subject-digest: ${{ steps.push-to-harbor.outputs.digest }}
+          push-to-registry: true
+      -
+        name: Attach and Sign SBOM
+        env: ${{ fromJson(steps.load-env.outputs.env) }}
+        run: |
+          IMAGE="quay.io/travelping/${{ steps.repo.outputs.project }}"
+          DIGEST="${{ steps.push-to-harbor.outputs.digest }}"
+          cosign login quay.io \
+            --username "${{ secrets.QUAY_USERNAME }}" \
+            --password "${{ secrets.QUAY_TOKEN }}"
+          cosign attach sbom --sbom sbom.cyclonedx.json "${IMAGE}@${DIGEST}"
+          cosign sign --yes "${IMAGE}@${DIGEST}"
       -
         name: Print image url
         run: |
