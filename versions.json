@@ -42,11 +42,11 @@
 	    "version": "28.4.1",
 	    "download_sha256": "fb2aa0bd8d4118a275895d4a0ea5b24e40e9e1e27a7b29e001377d7660fd9ecf"
 	},
-	"29.0-rc1":	{
+	"29.0-rc2":	{
 	    "alpine": "3.23.3",
 	    "rebar3": "3.27.0",
-	    "version": "29.0-rc1",
-	    "download_sha256": "ea98c87f975c12ffeb4fcb75d2b618cefea77ca02d3c2fca31a47e6d3d4db951"
+	    "version": "29.0-rc2",
+	    "download_sha256": "a7a0d4c134679f17e9c369548300b73196cf6972cc275c932bc5b041c823ea8c"
 	}
    },
     "rebar3": {
