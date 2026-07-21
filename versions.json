@@ -42,6 +42,12 @@
 	    "version": "28.4.1",
 	    "download_sha256": "fb2aa0bd8d4118a275895d4a0ea5b24e40e9e1e27a7b29e001377d7660fd9ecf"
 	},
+	"28.5":	{
+	    "alpine": "3.24.1",
+	    "rebar3": "3.27.0",
+	    "version": "28.5.0.3",
+	    "download_sha256": "63c56a954fe6134f283a01312ebefad00fb0f3ac7d7d42062ca3aa8e92ccd21d"
+	},
 	"29.0-rc2":	{
 	    "alpine": "3.23.3",
 	    "rebar3": "3.27.0",
