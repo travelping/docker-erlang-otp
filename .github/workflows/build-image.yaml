@@ -1,0 +1,275 @@
+name: Build Image
+
+# Reusable workflow: build and publish the multi-arch image for a SINGLE OTP
+# version. images.yaml calls this once per version (via matrix) so that each
+# version's build+manifest pipeline is fully independent — a build failure for
+# one version can no longer suppress the manifests of the others.
+
+on:
+  workflow_call:
+    inputs:
+      otp-version:
+        description: 'OTP major version key from versions.json (e.g. 29.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  build-amd64:
+    runs-on: ubuntu-26.04
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      -
+        name: Choose Repository
+        id: repo
+        env:
+          REF: ${{ github.ref }}
+        run: |
+          case "$REF" in
+            refs/heads/master)
+                echo "project=alpine-erlang" >> $GITHUB_OUTPUT
+                ;;
+            *)
+                echo "project=alpine-erlang-dev" >> $GITHUB_OUTPUT
+                ;;
+          esac
+      -
+        name: Load Env
+        id: load-env
+        uses: ./.github/actions/load-otp-env
+        with:
+          otp-version: ${{ inputs.otp-version }}
+      -
+        name: Docker Metadata
+        env: ${{ fromJson(steps.load-env.outputs.env) }}
+        id: meta
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
+        with:
+          images: |
+            quay.io/travelping/${{ steps.repo.outputs.project }}
+          tags: |
+            type=raw,value=${{ env.TAG }}-amd64
+            type=raw,value=${{ env.OTP_MAJOR }}-amd64
+            type=raw,value=${{ env.OTP_VERSION }}-amd64
+            type=raw,value=${{ env.OTP_VERSION }}-alpine-${{ env.ALPINE_MAJOR_MINOR }}-amd64
+            type=raw,value=${{ env.OTP_VERSION }}-alpine-${{ env.OTP_ALPINE }}-amd64
+            type=raw,value=${{ env.OTP_MAJOR }}-alpine-${{ env.ALPINE_MAJOR_MINOR }}-amd64
+            type=raw,value=${{ env.OTP_MAJOR }}-alpine-${{ env.OTP_ALPINE }}-amd64
+      -
+        name: Build Image
+        env: ${{ fromJson(steps.load-env.outputs.env) }}
+        id: build-image
+        uses: redhat-actions/buildah-build@7a95fa7ee0f02d552a32753e7414641a04307056 # v2.13
+        with:
+          build-args: |
+            ALPINE_VERSION=alpine:${{ env.OTP_ALPINE }}
+            OTP_VERSION=${{ env.OTP_VERSION }}
+            OTP_DOWNLOAD_SHA256=${{ env.OTP_DOWNLOAD_SHA256 }}
+            REBAR3_VERSION=${{ env.REBAR3_VERSION }}
+            REBAR3_DOWNLOAD_SHA256=${{ env.REBAR3_DOWNLOAD_SHA256 }}
+          image: ${{ steps.meta.outputs.images }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          platforms: linux/amd64
+          extra-args: |
+            --security-opt seccomp=unconfined
+          oci: true
+          containerfiles: |
+            ./Containerfile
+      -
+        name: Check images created
+        run: buildah images
+      -
+        name: Push To Registry
+        id: push-to-registry
+        uses: redhat-actions/push-to-registry@5ed88d269cf581ea9ef6dd6806d01562096bee9c # v2.8
+        with:
+          image: ${{ steps.build-image.outputs.image }}
+          tags: ${{ steps.build-image.outputs.tags }}
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_TOKEN }}
+      -
+        name: Print image url
+        run: |
+          echo "Image pushed to ${{ steps.push-to-registry.outputs.registry-paths }}"
+
+  build-arm64:
+    runs-on: ubuntu-26.04-arm
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      -
+        name: Choose Repository
+        id: repo
+        env:
+          REF: ${{ github.ref }}
+        run: |
+          case "$REF" in
+            refs/heads/master)
+                echo "project=alpine-erlang" >> $GITHUB_OUTPUT
+                ;;
+            *)
+                echo "project=alpine-erlang-dev" >> $GITHUB_OUTPUT
+                ;;
+          esac
+      -
+        name: Load Env
+        id: load-env
+        uses: ./.github/actions/load-otp-env
+        with:
+          otp-version: ${{ inputs.otp-version }}
+      -
+        name: Docker Metadata
+        env: ${{ fromJson(steps.load-env.outputs.env) }}
+        id: meta
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
+        with:
+          images: |
+            quay.io/travelping/${{ steps.repo.outputs.project }}
+          tags: |
+            type=raw,value=${{ env.TAG }}-arm64
+            type=raw,value=${{ env.OTP_MAJOR }}-arm64
+            type=raw,value=${{ env.OTP_VERSION }}-arm64
+            type=raw,value=${{ env.OTP_VERSION }}-alpine-${{ env.ALPINE_MAJOR_MINOR }}-arm64
+            type=raw,value=${{ env.OTP_VERSION }}-alpine-${{ env.OTP_ALPINE }}-arm64
+            type=raw,value=${{ env.OTP_MAJOR }}-alpine-${{ env.ALPINE_MAJOR_MINOR }}-arm64
+            type=raw,value=${{ env.OTP_MAJOR }}-alpine-${{ env.OTP_ALPINE }}-arm64
+      -
+        name: Build Image
+        env: ${{ fromJson(steps.load-env.outputs.env) }}
+        id: build-image
+        uses: redhat-actions/buildah-build@7a95fa7ee0f02d552a32753e7414641a04307056 # v2.13
+        with:
+          build-args: |
+            ALPINE_VERSION=alpine:${{ env.OTP_ALPINE }}
+            OTP_VERSION=${{ env.OTP_VERSION }}
+            OTP_DOWNLOAD_SHA256=${{ env.OTP_DOWNLOAD_SHA256 }}
+            REBAR3_VERSION=${{ env.REBAR3_VERSION }}
+            REBAR3_DOWNLOAD_SHA256=${{ env.REBAR3_DOWNLOAD_SHA256 }}
+          image: ${{ steps.meta.outputs.images }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          platforms: linux/arm64
+          extra-args: |
+            --security-opt seccomp=unconfined
+          oci: true
+          containerfiles: |
+            ./Containerfile
+      -
+        name: Check images created
+        run: buildah images
+      -
+        name: Push To Registry
+        id: push-to-registry
+        uses: redhat-actions/push-to-registry@5ed88d269cf581ea9ef6dd6806d01562096bee9c # v2.8
+        with:
+          image: ${{ steps.build-image.outputs.image }}
+          tags: ${{ steps.build-image.outputs.tags }}
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_TOKEN }}
+      -
+        name: Print image url
+        run: |
+          echo "Image pushed to ${{ steps.push-to-registry.outputs.registry-paths }}"
+
+  manifest:
+    needs: [build-amd64, build-arm64]
+    runs-on: ubuntu-26.04
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      -
+        name: Choose Repository
+        id: repo
+        env:
+          REF: ${{ github.ref }}
+        run: |
+          case "$REF" in
+            refs/heads/master)
+                echo "project=alpine-erlang" >> $GITHUB_OUTPUT
+                ;;
+            *)
+                echo "project=alpine-erlang-dev" >> $GITHUB_OUTPUT
+                ;;
+          esac
+      -
+        name: Load Env
+        id: load-env
+        uses: ./.github/actions/load-otp-env
+        with:
+          otp-version: ${{ inputs.otp-version }}
+      -
+        name: Login to Registry
+        env:
+          QUAY_USERNAME: ${{ secrets.QUAY_USERNAME }}
+          QUAY_TOKEN: ${{ secrets.QUAY_TOKEN }}
+        run: |
+          printf '%s' "$QUAY_TOKEN" | podman login -u "$QUAY_USERNAME" --password-stdin quay.io
+      -
+        name: Create and Push Multi-arch Manifests
+        env: ${{ fromJson(steps.load-env.outputs.env) }}
+        run: |
+          set -x
+
+          IMAGE_BASE="quay.io/travelping/${{ steps.repo.outputs.project }}"
+
+          # Array of all tag combinations
+          TAGS=(
+            "${{ env.TAG }}"
+            "${{ env.OTP_MAJOR }}"
+            "${{ env.OTP_VERSION }}"
+            "${{ env.OTP_VERSION }}-alpine-${{ env.ALPINE_MAJOR_MINOR }}"
+            "${{ env.OTP_VERSION }}-alpine-${{ env.OTP_ALPINE }}"
+            "${{ env.OTP_MAJOR }}-alpine-${{ env.ALPINE_MAJOR_MINOR }}"
+            "${{ env.OTP_MAJOR }}-alpine-${{ env.OTP_ALPINE }}"
+          )
+
+          # Create and push manifest for each tag
+          for TAG in "${TAGS[@]}"; do
+            MANIFEST_NAME="${IMAGE_BASE}:${TAG}"
+            AMD64_IMAGE="${IMAGE_BASE}:${TAG}-amd64"
+            ARM64_IMAGE="${IMAGE_BASE}:${TAG}-arm64"
+
+            echo "Creating manifest: $MANIFEST_NAME"
+
+            # Remove any existing local manifest to avoid conflicts
+            podman manifest rm "$MANIFEST_NAME" 2>/dev/null || true
+
+            # Create manifest
+            podman manifest create "$MANIFEST_NAME"
+
+            # Add architecture-specific images
+            podman manifest add "$MANIFEST_NAME" "$AMD64_IMAGE"
+            podman manifest add "$MANIFEST_NAME" "$ARM64_IMAGE"
+
+            # Inspect manifest
+            podman manifest inspect "$MANIFEST_NAME"
+
+            # Push manifest
+            podman manifest push "$MANIFEST_NAME"
+
+            echo "Pushed multi-arch manifest: $MANIFEST_NAME"
+          done
+      -
+        name: Print Summary
+        env: ${{ fromJson(steps.load-env.outputs.env) }}
+        run: |
+          echo -e "## Multi-arch images pushed\n" | tee -a $GITHUB_STEP_SUMMARY
+          echo "Base: quay.io/travelping/${{ steps.repo.outputs.project }}" | tee -a $GITHUB_STEP_SUMMARY
+          echo "" | tee -a $GITHUB_STEP_SUMMARY
+          echo "Tags:" | tee -a $GITHUB_STEP_SUMMARY
+          echo "- ${{ env.TAG }}" | tee -a $GITHUB_STEP_SUMMARY
+          echo "- ${{ env.OTP_MAJOR }}" | tee -a $GITHUB_STEP_SUMMARY
+          echo "- ${{ env.OTP_VERSION }}" | tee -a $GITHUB_STEP_SUMMARY
+          echo "- ${{ env.OTP_VERSION }}-alpine-${{ env.ALPINE_MAJOR_MINOR }}" | tee -a $GITHUB_STEP_SUMMARY
+          echo "- ${{ env.OTP_VERSION }}-alpine-${{ env.OTP_ALPINE }}" | tee -a $GITHUB_STEP_SUMMARY
+          echo "- ${{ env.OTP_MAJOR }}-alpine-${{ env.ALPINE_MAJOR_MINOR }}" | tee -a $GITHUB_STEP_SUMMARY
+          echo "- ${{ env.OTP_MAJOR }}-alpine-${{ env.OTP_ALPINE }}" | tee -a $GITHUB_STEP_SUMMARY
+          echo "" | tee -a $GITHUB_STEP_SUMMARY
+          echo "Architectures: linux/amd64, linux/arm64" | tee -a $GITHUB_STEP_SUMMARY
