@@ -1,0 +1,30 @@
+ARG ERLANG_IMAGE
+FROM ${ERLANG_IMAGE}
+
+ARG ELIXIR_VERSION
+ARG ELIXIR_DOWNLOAD_SHA256
+
+# elixir expects utf8.
+ENV ELIXIR_VERSION=$ELIXIR_VERSION \
+    LANG=C.UTF-8
+
+LABEL org.opencontainers.image.version=$ELIXIR_VERSION
+
+RUN set -xe \
+	&& ELIXIR_DOWNLOAD_URL="https://github.com/elixir-lang/elixir/archive/v${ELIXIR_VERSION}.tar.gz" \
+	&& apk add --no-cache --virtual .elixir-build-deps \
+		ca-certificates \
+		curl \
+		make \
+	&& curl -fSL -o elixir-src.tar.gz "$ELIXIR_DOWNLOAD_URL" \
+	&& echo "$ELIXIR_DOWNLOAD_SHA256  elixir-src.tar.gz" | sha256sum -c - \
+	&& mkdir -p /usr/local/src/elixir \
+	&& tar -xzC /usr/local/src/elixir --strip-components=1 -f elixir-src.tar.gz \
+	&& rm elixir-src.tar.gz \
+	&& cd /usr/local/src/elixir \
+	&& make install clean \
+	&& find /usr/local/src/elixir/ -type f -not -regex "/usr/local/src/elixir/lib/[^\/]*/lib.*" -exec rm -rf {} + \
+	&& find /usr/local/src/elixir/ -type d -depth -empty -delete \
+	&& apk del .elixir-build-deps
+
+CMD ["iex"]
