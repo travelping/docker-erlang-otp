@@ -1,9 +1,22 @@
 name: Build Image
 
 # Reusable workflow: build and publish the multi-arch image for a SINGLE OTP
-# version. images.yaml calls this once per version (via matrix) so that each
-# version's build+manifest pipeline is fully independent — a build failure for
-# one version can no longer suppress the manifests of the others.
+# version. images.yaml calls this once per version (via matrix) so each
+# version's build+manifest pipeline is independent.
+#
+# Each arch is built natively and pushed to a SHORT-LIVED per-arch tag
+# (<build-tag>-amd64 / -arm64) that carries a `quay.expires-after` label, so
+# quay auto-removes the temp tag after a day. The manifest job assembles the
+# multi-arch list from those temp tags and pushes it under the real
+# (unarchitectured) tags; once the tagged list exists, the per-arch manifests
+# survive as list members even after their temp tags expire. Net result: only
+# the final multi-arch tags remain visible — no per-arch tags cluttering the
+# registry long-term — without needing registry delete permissions.
+#
+# (A pure by-digest push does NOT work here: quay garbage-collects untagged
+# manifests before the list can reference them.)
+#
+# The finished multi-arch image is also mirrored to Harbor (cennso[-dev]).
 
 on:
   workflow_call:
@@ -15,6 +28,13 @@ on:
 
 permissions:
   contents: read
+
+env:
+  # podman login (one step) and the later push/skopeo steps must share
+  # credentials. Rootless podman's default auth path is not reliably shared
+  # across GitHub Actions steps, so pin an explicit auth file that podman,
+  # buildah and skopeo all read/write.
+  REGISTRY_AUTH_FILE: /tmp/registry-auth.json
 
 jobs:
   build-amd64:
@@ -44,36 +64,22 @@ jobs:
         with:
           otp-version: ${{ inputs.otp-version }}
       -
-        name: Docker Metadata
-        env: ${{ fromJson(steps.load-env.outputs.env) }}
-        id: meta
-        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
-        with:
-          images: |
-            quay.io/travelping/${{ steps.repo.outputs.project }}
-          tags: |
-            type=raw,value=${{ env.TAG }}-amd64
-            type=raw,value=${{ env.OTP_MAJOR }}-amd64
-            type=raw,value=${{ env.OTP_VERSION }}-amd64
-            type=raw,value=${{ env.OTP_VERSION }}-alpine-${{ env.ALPINE_MAJOR_MINOR }}-amd64
-            type=raw,value=${{ env.OTP_VERSION }}-alpine-${{ env.OTP_ALPINE }}-amd64
-            type=raw,value=${{ env.OTP_MAJOR }}-alpine-${{ env.ALPINE_MAJOR_MINOR }}-amd64
-            type=raw,value=${{ env.OTP_MAJOR }}-alpine-${{ env.OTP_ALPINE }}-amd64
-      -
         name: Build Image
         env: ${{ fromJson(steps.load-env.outputs.env) }}
         id: build-image
         uses: redhat-actions/buildah-build@7a95fa7ee0f02d552a32753e7414641a04307056 # v2.13
         with:
+          image: otp-build
+          tags: amd64
+          # quay auto-expires the short-lived per-arch tag this image is pushed to
+          labels: |
+            quay.expires-after=1d
           build-args: |
             ALPINE_VERSION=alpine:${{ env.OTP_ALPINE }}
             OTP_VERSION=${{ env.OTP_VERSION }}
             OTP_DOWNLOAD_SHA256=${{ env.OTP_DOWNLOAD_SHA256 }}
             REBAR3_VERSION=${{ env.REBAR3_VERSION }}
             REBAR3_DOWNLOAD_SHA256=${{ env.REBAR3_DOWNLOAD_SHA256 }}
-          image: ${{ steps.meta.outputs.images }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64
           extra-args: |
             --security-opt seccomp=unconfined
@@ -81,21 +87,17 @@ jobs:
           containerfiles: |
             ./Containerfile
       -
-        name: Check images created
-        run: buildah images
-      -
-        name: Push To Registry
-        id: push-to-registry
-        uses: redhat-actions/push-to-registry@5ed88d269cf581ea9ef6dd6806d01562096bee9c # v2.8
-        with:
-          image: ${{ steps.build-image.outputs.image }}
-          tags: ${{ steps.build-image.outputs.tags }}
-          username: ${{ secrets.QUAY_USERNAME }}
-          password: ${{ secrets.QUAY_TOKEN }}
-      -
-        name: Print image url
+        name: Push temp arch tag
+        env:
+          QUAY_USERNAME: ${{ secrets.QUAY_USERNAME }}
+          QUAY_TOKEN: ${{ secrets.QUAY_TOKEN }}
+          BUILD_TAG: ${{ fromJson(steps.load-env.outputs.env).TAG }}
         run: |
-          echo "Image pushed to ${{ steps.push-to-registry.outputs.registry-paths }}"
+          set -euo pipefail
+          IMAGE="quay.io/travelping/${{ steps.repo.outputs.project }}"
+          printf '%s' "$QUAY_TOKEN" | buildah login -u "$QUAY_USERNAME" --password-stdin quay.io
+          buildah push "${{ steps.build-image.outputs.image }}:amd64" "docker://${IMAGE}:${BUILD_TAG}-amd64"
+          echo "Pushed temp tag: ${IMAGE}:${BUILD_TAG}-amd64 (expires 1d)"
 
   build-arm64:
     runs-on: ubuntu-26.04-arm
@@ -124,36 +126,21 @@ jobs:
         with:
           otp-version: ${{ inputs.otp-version }}
       -
-        name: Docker Metadata
-        env: ${{ fromJson(steps.load-env.outputs.env) }}
-        id: meta
-        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
-        with:
-          images: |
-            quay.io/travelping/${{ steps.repo.outputs.project }}
-          tags: |
-            type=raw,value=${{ env.TAG }}-arm64
-            type=raw,value=${{ env.OTP_MAJOR }}-arm64
-            type=raw,value=${{ env.OTP_VERSION }}-arm64
-            type=raw,value=${{ env.OTP_VERSION }}-alpine-${{ env.ALPINE_MAJOR_MINOR }}-arm64
-            type=raw,value=${{ env.OTP_VERSION }}-alpine-${{ env.OTP_ALPINE }}-arm64
-            type=raw,value=${{ env.OTP_MAJOR }}-alpine-${{ env.ALPINE_MAJOR_MINOR }}-arm64
-            type=raw,value=${{ env.OTP_MAJOR }}-alpine-${{ env.OTP_ALPINE }}-arm64
-      -
         name: Build Image
         env: ${{ fromJson(steps.load-env.outputs.env) }}
         id: build-image
         uses: redhat-actions/buildah-build@7a95fa7ee0f02d552a32753e7414641a04307056 # v2.13
         with:
+          image: otp-build
+          tags: arm64
+          labels: |
+            quay.expires-after=1d
           build-args: |
             ALPINE_VERSION=alpine:${{ env.OTP_ALPINE }}
             OTP_VERSION=${{ env.OTP_VERSION }}
             OTP_DOWNLOAD_SHA256=${{ env.OTP_DOWNLOAD_SHA256 }}
             REBAR3_VERSION=${{ env.REBAR3_VERSION }}
             REBAR3_DOWNLOAD_SHA256=${{ env.REBAR3_DOWNLOAD_SHA256 }}
-          image: ${{ steps.meta.outputs.images }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/arm64
           extra-args: |
             --security-opt seccomp=unconfined
@@ -161,21 +148,17 @@ jobs:
           containerfiles: |
             ./Containerfile
       -
-        name: Check images created
-        run: buildah images
-      -
-        name: Push To Registry
-        id: push-to-registry
-        uses: redhat-actions/push-to-registry@5ed88d269cf581ea9ef6dd6806d01562096bee9c # v2.8
-        with:
-          image: ${{ steps.build-image.outputs.image }}
-          tags: ${{ steps.build-image.outputs.tags }}
-          username: ${{ secrets.QUAY_USERNAME }}
-          password: ${{ secrets.QUAY_TOKEN }}
-      -
-        name: Print image url
+        name: Push temp arch tag
+        env:
+          QUAY_USERNAME: ${{ secrets.QUAY_USERNAME }}
+          QUAY_TOKEN: ${{ secrets.QUAY_TOKEN }}
+          BUILD_TAG: ${{ fromJson(steps.load-env.outputs.env).TAG }}
         run: |
-          echo "Image pushed to ${{ steps.push-to-registry.outputs.registry-paths }}"
+          set -euo pipefail
+          IMAGE="quay.io/travelping/${{ steps.repo.outputs.project }}"
+          printf '%s' "$QUAY_TOKEN" | buildah login -u "$QUAY_USERNAME" --password-stdin quay.io
+          buildah push "${{ steps.build-image.outputs.image }}:arm64" "docker://${IMAGE}:${BUILD_TAG}-arm64"
+          echo "Pushed temp tag: ${IMAGE}:${BUILD_TAG}-arm64 (expires 1d)"
 
   manifest:
     needs: [build-amd64, build-arm64]
@@ -193,9 +176,11 @@ jobs:
           case "$REF" in
             refs/heads/master)
                 echo "project=alpine-erlang" >> $GITHUB_OUTPUT
+                echo "harbor_ns=cennso" >> $GITHUB_OUTPUT
                 ;;
             *)
                 echo "project=alpine-erlang-dev" >> $GITHUB_OUTPUT
+                echo "harbor_ns=cennso-dev" >> $GITHUB_OUTPUT
                 ;;
           esac
       -
@@ -205,21 +190,34 @@ jobs:
         with:
           otp-version: ${{ inputs.otp-version }}
       -
-        name: Login to Registry
+        name: Log in to registries
         env:
           QUAY_USERNAME: ${{ secrets.QUAY_USERNAME }}
           QUAY_TOKEN: ${{ secrets.QUAY_TOKEN }}
+          HARBOR_DOMAIN: ${{ secrets.CUR_REGISTRY_DOMAIN }}
+          HARBOR_USERNAME: ${{ secrets.CUR_REGISTRY_USERNAME }}
+          HARBOR_PASSWORD: ${{ secrets.CUR_REGISTRY_PASSWORD }}
         run: |
+          set -eu
           printf '%s' "$QUAY_TOKEN" | podman login -u "$QUAY_USERNAME" --password-stdin quay.io
+          printf '%s' "$HARBOR_PASSWORD" | podman login -u "$HARBOR_USERNAME" --password-stdin "$HARBOR_DOMAIN"
+          # Base repo path for the Harbor mirror (cennso / cennso-dev per branch)
+          echo "HARBOR_BASE=${HARBOR_DOMAIN}/${{ steps.repo.outputs.harbor_ns }}/erlang/alpine" >> "$GITHUB_ENV"
+          # skopeo mirrors the finished multi-arch image; ensure it is present
+          command -v skopeo >/dev/null || { sudo apt-get update && sudo apt-get install -y --no-install-recommends skopeo; }
       -
         name: Create and Push Multi-arch Manifests
         env: ${{ fromJson(steps.load-env.outputs.env) }}
         run: |
-          set -x
+          set -xeuo pipefail
 
           IMAGE_BASE="quay.io/travelping/${{ steps.repo.outputs.project }}"
+          # Per-arch images live under short-lived temp tags (see workflow header).
+          BUILD_TAG="${{ env.TAG }}"
+          AMD64_REF="${IMAGE_BASE}:${BUILD_TAG}-amd64"
+          ARM64_REF="${IMAGE_BASE}:${BUILD_TAG}-arm64"
 
-          # Array of all tag combinations
+          # Final (unarchitectured) tags
           TAGS=(
             "${{ env.TAG }}"
             "${{ env.OTP_MAJOR }}"
@@ -230,31 +228,26 @@ jobs:
             "${{ env.OTP_MAJOR }}-alpine-${{ env.OTP_ALPINE }}"
           )
 
-          # Create and push manifest for each tag
           for TAG in "${TAGS[@]}"; do
             MANIFEST_NAME="${IMAGE_BASE}:${TAG}"
-            AMD64_IMAGE="${IMAGE_BASE}:${TAG}-amd64"
-            ARM64_IMAGE="${IMAGE_BASE}:${TAG}-arm64"
 
             echo "Creating manifest: $MANIFEST_NAME"
 
             # Remove any existing local manifest to avoid conflicts
             podman manifest rm "$MANIFEST_NAME" 2>/dev/null || true
 
-            # Create manifest
+            # Assemble the list from the per-arch temp tags
             podman manifest create "$MANIFEST_NAME"
+            podman manifest add "$MANIFEST_NAME" "docker://${AMD64_REF}"
+            podman manifest add "$MANIFEST_NAME" "docker://${ARM64_REF}"
 
-            # Add architecture-specific images
-            podman manifest add "$MANIFEST_NAME" "$AMD64_IMAGE"
-            podman manifest add "$MANIFEST_NAME" "$ARM64_IMAGE"
-
-            # Inspect manifest
             podman manifest inspect "$MANIFEST_NAME"
+            podman manifest push --all "$MANIFEST_NAME" "docker://${MANIFEST_NAME}"
+            echo "Pushed multi-arch manifest to quay.io: $MANIFEST_NAME"
 
-            # Push manifest
-            podman manifest push "$MANIFEST_NAME"
-
-            echo "Pushed multi-arch manifest: $MANIFEST_NAME"
+            # Mirror the finished multi-arch image (all arches + list) to Harbor
+            skopeo copy --multi-arch=all "docker://${MANIFEST_NAME}" "docker://${HARBOR_BASE}:${TAG}"
+            echo "Mirrored to Harbor: ${HARBOR_BASE}:${TAG}"
           done
       -
         name: Print Summary
@@ -262,6 +255,7 @@ jobs:
         run: |
           echo -e "## Multi-arch images pushed\n" | tee -a $GITHUB_STEP_SUMMARY
           echo "Base: quay.io/travelping/${{ steps.repo.outputs.project }}" | tee -a $GITHUB_STEP_SUMMARY
+          echo "Harbor mirror: ${HARBOR_BASE}" | tee -a $GITHUB_STEP_SUMMARY
           echo "" | tee -a $GITHUB_STEP_SUMMARY
           echo "Tags:" | tee -a $GITHUB_STEP_SUMMARY
           echo "- ${{ env.TAG }}" | tee -a $GITHUB_STEP_SUMMARY
@@ -273,3 +267,4 @@ jobs:
           echo "- ${{ env.OTP_MAJOR }}-alpine-${{ env.OTP_ALPINE }}" | tee -a $GITHUB_STEP_SUMMARY
           echo "" | tee -a $GITHUB_STEP_SUMMARY
           echo "Architectures: linux/amd64, linux/arm64" | tee -a $GITHUB_STEP_SUMMARY
+          echo "Per-arch temp tags (${{ env.TAG }}-amd64 / -arm64) auto-expire in 1d." | tee -a $GITHUB_STEP_SUMMARY
