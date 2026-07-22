@@ -1,6 +1,6 @@
 ---
 name: update-erlang-versions
-description: You are an AI assistant responsible for maintaining the Erlang/OTP versions in this project. Your task is to update the `versions.json` file with the latest Erlang/OTP and rebar3 releases according to specific versioning rules.
+description: Use when checking whether Erlang/OTP or rebar3 versions are current, or updating them in versions.json — comparing against the latest upstream releases, adding new OTP major/minor versions or release candidates, bumping patch/alpine/rebar3 versions, pruning old versions, or fetching download SHA256 checksums for this Docker image project.
 ---
 
 ## Instructions
@@ -117,12 +117,18 @@ After updating `versions.json`, review the `.github/workflows/images.yaml` file 
 - `versions.json` - Primary file containing version information
 - `.github/workflows/images.yaml` - Review only, typically no changes needed
 
-## Key Considerations
+## Quick Reference
 
-- Always verify SHA256 checksums using official SHA256.txt files from releases when available
-- If SHA256.txt is missing, consult the user before proceeding with manual calculation
-- Maintain backward compatibility by keeping the latest patch of the previous major version
-- Remove release candidates only when the stable version is released
-- Ensure alpine and rebar3 versions are compatible with the OTP version being added
-- For prerelease (RC) versions, always update `alpine` and `rebar3` to the latest available during routine updates
-- For stable versions, never update `rebar3`; only update `alpine` to a newer patch within the same major alpine series
+Per-class behavior when running an update (details in section 3):
+
+| Version class | version/sha256 | alpine | rebar3 | prune |
+|---|---|---|---|---|
+| Existing stable | bump to newer patch | newer patch within same alpine major only | never | — |
+| Current major series | add missing minors | — | — | — |
+| Existing RC (prerelease) | bump to newer prerelease | latest (incl. new alpine major) | latest | drop old `rebar3-*-otp-*` patch dir when rebar3 bumps |
+| New RC published | add with latest compatible alpine/rebar3 | — | — | never prune when only adding an RC |
+| New major published | add | recent | latest compatible | remove that major's RCs + all previous-major entries except its latest minor/patch |
+
+Always-true guardrails:
+- Verify SHA256 from the official `SHA256.txt` when available; if missing, **ask the user** before calculating manually — never guess.
+- Ensure alpine and rebar3 are compatible with the OTP version being added.
