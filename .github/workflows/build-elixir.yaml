@@ -54,6 +54,13 @@ jobs:
           otp-version: ${{ inputs.otp-version }}
           elixir-version: ${{ inputs.elixir-version }}
       -
+        name: Log in to quay (base image pull)
+        env:
+          QUAY_USERNAME: ${{ secrets.QUAY_USERNAME }}
+          QUAY_TOKEN: ${{ secrets.QUAY_TOKEN }}
+        run: |
+          printf '%s' "$QUAY_TOKEN" | buildah login -u "$QUAY_USERNAME" --password-stdin quay.io
+      -
         name: Build Image
         env: ${{ fromJson(steps.load-env.outputs.env) }}
         id: build-image
@@ -76,13 +83,10 @@ jobs:
       -
         name: Push temp arch tag
         env:
-          QUAY_USERNAME: ${{ secrets.QUAY_USERNAME }}
-          QUAY_TOKEN: ${{ secrets.QUAY_TOKEN }}
           BUILD_TAG: ${{ fromJson(steps.load-env.outputs.env).TAG }}
         run: |
           set -euo pipefail
           IMAGE="quay.io/travelping/${{ steps.repo.outputs.project }}"
-          printf '%s' "$QUAY_TOKEN" | buildah login -u "$QUAY_USERNAME" --password-stdin quay.io
           buildah push "${{ steps.build-image.outputs.image }}:amd64" "docker://${IMAGE}:${BUILD_TAG}-amd64"
           echo "Pushed temp tag: ${IMAGE}:${BUILD_TAG}-amd64 (expires 1d)"
 
@@ -116,6 +120,13 @@ jobs:
           otp-version: ${{ inputs.otp-version }}
           elixir-version: ${{ inputs.elixir-version }}
       -
+        name: Log in to quay (base image pull)
+        env:
+          QUAY_USERNAME: ${{ secrets.QUAY_USERNAME }}
+          QUAY_TOKEN: ${{ secrets.QUAY_TOKEN }}
+        run: |
+          printf '%s' "$QUAY_TOKEN" | buildah login -u "$QUAY_USERNAME" --password-stdin quay.io
+      -
         name: Build Image
         env: ${{ fromJson(steps.load-env.outputs.env) }}
         id: build-image
@@ -138,13 +149,10 @@ jobs:
       -
         name: Push temp arch tag
         env:
-          QUAY_USERNAME: ${{ secrets.QUAY_USERNAME }}
-          QUAY_TOKEN: ${{ secrets.QUAY_TOKEN }}
           BUILD_TAG: ${{ fromJson(steps.load-env.outputs.env).TAG }}
         run: |
           set -euo pipefail
           IMAGE="quay.io/travelping/${{ steps.repo.outputs.project }}"
-          printf '%s' "$QUAY_TOKEN" | buildah login -u "$QUAY_USERNAME" --password-stdin quay.io
           buildah push "${{ steps.build-image.outputs.image }}:arm64" "docker://${IMAGE}:${BUILD_TAG}-arm64"
           echo "Pushed temp tag: ${IMAGE}:${BUILD_TAG}-arm64 (expires 1d)"
 
