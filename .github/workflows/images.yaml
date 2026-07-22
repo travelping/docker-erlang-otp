@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-26.04
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
+      pairs: ${{ steps.set-matrix.outputs.pairs }}
     steps:
       -
         name: Checkout
@@ -24,6 +25,9 @@ jobs:
           matrix=$(jq -c '{"otp" : .otp | keys}' versions.json)
           echo "Matrix: $matrix"
           echo "matrix=$matrix" >> $GITHUB_OUTPUT
+          pairs=$(jq -c '{"include": [ .otp | to_entries[] | .key as $otp | (.value.elixir // [])[] | {otp: $otp, elixir: .} ]}' versions.json)
+          echo "Pairs: $pairs"
+          echo "pairs=$pairs" >> $GITHUB_OUTPUT
 
   build:
     needs: matrix
@@ -33,4 +37,15 @@ jobs:
     uses: ./.github/workflows/build-image.yaml
     with:
       otp-version: ${{ matrix.otp }}
+    secrets: inherit
+
+  build-elixir:
+    needs: [matrix, build]
+    strategy:
+      matrix: ${{ fromJson(needs.matrix.outputs.pairs) }}
+      fail-fast: false
+    uses: ./.github/workflows/build-elixir.yaml
+    with:
+      otp-version: ${{ matrix.otp }}
+      elixir-version: ${{ matrix.elixir }}
     secrets: inherit
