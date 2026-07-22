@@ -1,0 +1,38 @@
+name: 'Load Elixir Environment'
+description: 'Resolve OTP + Elixir build variables for an (OTP, Elixir) pair from versions.json'
+inputs:
+  otp-version:
+    description: 'OTP major version key from versions.json (e.g. 27.3)'
+    required: true
+  elixir-version:
+    description: 'Full Elixir version key from versions.json (e.g. 1.19.5)'
+    required: true
+outputs:
+  env:
+    description: 'JSON object with all environment variables'
+    value: ${{ steps.load-env.outputs.env }}
+
+runs:
+  using: 'composite'
+  steps:
+    - id: load-env
+      shell: bash
+      env:
+        OTP: ${{ inputs.otp-version }}
+        ELIXIR: ${{ inputs.elixir-version }}
+      run: |
+        set -euo pipefail
+        load=$(jq -cr --arg otp "$OTP" --arg elixir "$ELIXIR" '
+          .otp[$otp] as $o
+          | {
+              OTP_MAJOR: $otp,
+              OTP_VERSION: $o.version,
+              OTP_ALPINE: $o.alpine,
+              ALPINE_MAJOR_MINOR: ($o.alpine | split(".") | .[0:2] | join(".")),
+              ELIXIR_VERSION: $elixir,
+              ELIXIR_MINOR: ($elixir | split(".") | .[0:2] | join(".")),
+              ELIXIR_DOWNLOAD_SHA256: .elixir[$elixir].download_sha256
+            }' versions.json)
+        tag=$(echo "$load" | jq -cr ".ELIXIR_VERSION + \":\" + .OTP_VERSION + \":$GITHUB_RUN_ID\"" | sha256sum | cut -b -7)
+        load=$(echo "$load" | jq -cr ". + {\"TAG\":\"$tag\"}")
+        echo "env=$load" >> "$GITHUB_OUTPUT"
