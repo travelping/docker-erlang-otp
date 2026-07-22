@@ -3,44 +3,14 @@
 	"26.2":	{
 	    "alpine": "3.19.9",
 	    "rebar3": "3.22.1",
-	    "version": "26.2.5.18",
-	    "download_sha256": "0415793dbca27cf1ceb688f2198ccd669f0039a87309b9e882f14b61c1161f26"
+	    "version": "26.2.5.21",
+	    "download_sha256": "e1fde86f4e2874d4c136221a34753b5b785d762b910fb3fb35a23a6a7faf0a64"
 	},
 	"27.3":	{
-	    "alpine": "3.21.6",
+	    "alpine": "3.21.7",
 	    "rebar3": "3.24.0",
-	    "version": "27.3.4.9",
-	    "download_sha256": "62e964290041eed1182e1a1dbf934193aacd2e124b315cd5b9ffd9dd0d3b0f8f"
-	},
-	"28.0":	{
-	    "alpine": "3.22.3",
-	    "rebar3": "3.25.0",
-	    "version": "28.0.4",
-	    "download_sha256": "687c0abece0a12d58517c1892bf45df6d5db23d1b6098d59bdb0c77bbc4e88e8"
-	},
-	"28.1":	{
-	    "alpine": "3.22.3",
-	    "rebar3": "3.25.1",
-	    "version": "28.1.1",
-	    "download_sha256": "03e1b26e846b2cc1b49271656da6d5ecf4d5f4c2e34224d869a23c61a3d5660a"
-	},
-	"28.2":	{
-	    "alpine": "3.23.3",
-	    "rebar3": "3.25.1",
-	    "version": "28.2",
-	    "download_sha256": "b0f6e1273a034e91c4fa6895e8cb84276baf5ca7a23b29da4f04ff9d0419a0c2"
-	},
-	"28.3":	{
-	    "alpine": "3.23.3",
-	    "rebar3": "3.26.0",
-	    "version": "28.3.3",
-	    "download_sha256": "641f252b12b64c89ea8ae16b6c35d8983378a588490421bf1e69cdc51cea6e65"
-	},
-	"28.4":	{
-	    "alpine": "3.23.3",
-	    "rebar3": "3.27.0",
-	    "version": "28.4.1",
-	    "download_sha256": "fb2aa0bd8d4118a275895d4a0ea5b24e40e9e1e27a7b29e001377d7660fd9ecf"
+	    "version": "27.3.4.14",
+	    "download_sha256": "cda7508a1aef446824f5fff4d64f1b1ad6365e7ad9a5f9d7300f6b6b3aef7015"
 	},
 	"28.5":	{
 	    "alpine": "3.24.1",
@@ -48,11 +18,11 @@
 	    "version": "28.5.0.3",
 	    "download_sha256": "63c56a954fe6134f283a01312ebefad00fb0f3ac7d7d42062ca3aa8e92ccd21d"
 	},
-	"29.0-rc2":	{
-	    "alpine": "3.23.3",
+	"29.0":	{
+	    "alpine": "3.24.1",
 	    "rebar3": "3.27.0",
-	    "version": "29.0-rc2",
-	    "download_sha256": "a7a0d4c134679f17e9c369548300b73196cf6972cc275c932bc5b041c823ea8c"
+	    "version": "29.0.3",
+	    "download_sha256": "f920c660b16794bcb7270d1cbf680f7747c719650bcd6ac449508a32c2a8972a"
 	}
    },
     "rebar3": {
