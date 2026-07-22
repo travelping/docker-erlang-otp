@@ -1,0 +1,244 @@
+name: Build Elixir Image
+
+# Reusable workflow: build and publish the multi-arch Elixir image for a single
+# (OTP, Elixir) pair, layered on the already-published Erlang image. Mirrors
+# build-image.yaml: native per-arch build -> short-lived temp tag (quay auto-
+# expires it) -> manifest list -> Harbor mirror.
+
+on:
+  workflow_call:
+    inputs:
+      otp-version:
+        description: 'OTP major version key from versions.json (e.g. 27.3)'
+        required: true
+        type: string
+      elixir-version:
+        description: 'Full Elixir version key from versions.json (e.g. 1.19.5)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+env:
+  REGISTRY_AUTH_FILE: /tmp/registry-auth.json
+
+jobs:
+  build-amd64:
+    runs-on: ubuntu-26.04
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      -
+        name: Choose Repository
+        id: repo
+        env:
+          REF: ${{ github.ref }}
+        run: |
+          case "$REF" in
+            refs/heads/master)
+                echo "erlang=alpine-erlang" >> $GITHUB_OUTPUT
+                echo "project=alpine-elixir" >> $GITHUB_OUTPUT
+                ;;
+            *)
+                echo "erlang=alpine-erlang-dev" >> $GITHUB_OUTPUT
+                echo "project=alpine-elixir-dev" >> $GITHUB_OUTPUT
+                ;;
+          esac
+      -
+        name: Load Env
+        id: load-env
+        uses: ./.github/actions/load-elixir-env
+        with:
+          otp-version: ${{ inputs.otp-version }}
+          elixir-version: ${{ inputs.elixir-version }}
+      -
+        name: Build Image
+        env: ${{ fromJson(steps.load-env.outputs.env) }}
+        id: build-image
+        uses: redhat-actions/buildah-build@7a95fa7ee0f02d552a32753e7414641a04307056 # v2.13
+        with:
+          image: elixir-build
+          tags: amd64
+          labels: |
+            quay.expires-after=1d
+          build-args: |
+            ERLANG_IMAGE=quay.io/travelping/${{ steps.repo.outputs.erlang }}:${{ env.OTP_VERSION }}
+            ELIXIR_VERSION=${{ env.ELIXIR_VERSION }}
+            ELIXIR_DOWNLOAD_SHA256=${{ env.ELIXIR_DOWNLOAD_SHA256 }}
+          platforms: linux/amd64
+          extra-args: |
+            --security-opt seccomp=unconfined
+          oci: true
+          containerfiles: |
+            ./Containerfile.elixir
+      -
+        name: Push temp arch tag
+        env:
+          QUAY_USERNAME: ${{ secrets.QUAY_USERNAME }}
+          QUAY_TOKEN: ${{ secrets.QUAY_TOKEN }}
+          BUILD_TAG: ${{ fromJson(steps.load-env.outputs.env).TAG }}
+        run: |
+          set -euo pipefail
+          IMAGE="quay.io/travelping/${{ steps.repo.outputs.project }}"
+          printf '%s' "$QUAY_TOKEN" | buildah login -u "$QUAY_USERNAME" --password-stdin quay.io
+          buildah push "${{ steps.build-image.outputs.image }}:amd64" "docker://${IMAGE}:${BUILD_TAG}-amd64"
+          echo "Pushed temp tag: ${IMAGE}:${BUILD_TAG}-amd64 (expires 1d)"
+
+  build-arm64:
+    runs-on: ubuntu-26.04-arm
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      -
+        name: Choose Repository
+        id: repo
+        env:
+          REF: ${{ github.ref }}
+        run: |
+          case "$REF" in
+            refs/heads/master)
+                echo "erlang=alpine-erlang" >> $GITHUB_OUTPUT
+                echo "project=alpine-elixir" >> $GITHUB_OUTPUT
+                ;;
+            *)
+                echo "erlang=alpine-erlang-dev" >> $GITHUB_OUTPUT
+                echo "project=alpine-elixir-dev" >> $GITHUB_OUTPUT
+                ;;
+          esac
+      -
+        name: Load Env
+        id: load-env
+        uses: ./.github/actions/load-elixir-env
+        with:
+          otp-version: ${{ inputs.otp-version }}
+          elixir-version: ${{ inputs.elixir-version }}
+      -
+        name: Build Image
+        env: ${{ fromJson(steps.load-env.outputs.env) }}
+        id: build-image
+        uses: redhat-actions/buildah-build@7a95fa7ee0f02d552a32753e7414641a04307056 # v2.13
+        with:
+          image: elixir-build
+          tags: arm64
+          labels: |
+            quay.expires-after=1d
+          build-args: |
+            ERLANG_IMAGE=quay.io/travelping/${{ steps.repo.outputs.erlang }}:${{ env.OTP_VERSION }}
+            ELIXIR_VERSION=${{ env.ELIXIR_VERSION }}
+            ELIXIR_DOWNLOAD_SHA256=${{ env.ELIXIR_DOWNLOAD_SHA256 }}
+          platforms: linux/arm64
+          extra-args: |
+            --security-opt seccomp=unconfined
+          oci: true
+          containerfiles: |
+            ./Containerfile.elixir
+      -
+        name: Push temp arch tag
+        env:
+          QUAY_USERNAME: ${{ secrets.QUAY_USERNAME }}
+          QUAY_TOKEN: ${{ secrets.QUAY_TOKEN }}
+          BUILD_TAG: ${{ fromJson(steps.load-env.outputs.env).TAG }}
+        run: |
+          set -euo pipefail
+          IMAGE="quay.io/travelping/${{ steps.repo.outputs.project }}"
+          printf '%s' "$QUAY_TOKEN" | buildah login -u "$QUAY_USERNAME" --password-stdin quay.io
+          buildah push "${{ steps.build-image.outputs.image }}:arm64" "docker://${IMAGE}:${BUILD_TAG}-arm64"
+          echo "Pushed temp tag: ${IMAGE}:${BUILD_TAG}-arm64 (expires 1d)"
+
+  manifest:
+    needs: [build-amd64, build-arm64]
+    runs-on: ubuntu-26.04
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      -
+        name: Choose Repository
+        id: repo
+        env:
+          REF: ${{ github.ref }}
+        run: |
+          case "$REF" in
+            refs/heads/master)
+                echo "project=alpine-elixir" >> $GITHUB_OUTPUT
+                echo "harbor_ns=cennso" >> $GITHUB_OUTPUT
+                ;;
+            *)
+                echo "project=alpine-elixir-dev" >> $GITHUB_OUTPUT
+                echo "harbor_ns=cennso-dev" >> $GITHUB_OUTPUT
+                ;;
+          esac
+      -
+        name: Load Env
+        id: load-env
+        uses: ./.github/actions/load-elixir-env
+        with:
+          otp-version: ${{ inputs.otp-version }}
+          elixir-version: ${{ inputs.elixir-version }}
+      -
+        name: Log in to registries
+        env:
+          QUAY_USERNAME: ${{ secrets.QUAY_USERNAME }}
+          QUAY_TOKEN: ${{ secrets.QUAY_TOKEN }}
+          HARBOR_DOMAIN: ${{ secrets.CUR_REGISTRY_DOMAIN }}
+          HARBOR_USERNAME: ${{ secrets.CUR_REGISTRY_USERNAME }}
+          HARBOR_PASSWORD: ${{ secrets.CUR_REGISTRY_PASSWORD }}
+        run: |
+          set -eu
+          printf '%s' "$QUAY_TOKEN" | podman login -u "$QUAY_USERNAME" --password-stdin quay.io
+          printf '%s' "$HARBOR_PASSWORD" | podman login -u "$HARBOR_USERNAME" --password-stdin "$HARBOR_DOMAIN"
+          echo "HARBOR_BASE=${HARBOR_DOMAIN}/${{ steps.repo.outputs.harbor_ns }}/elixir/alpine" >> "$GITHUB_ENV"
+          command -v skopeo >/dev/null || { sudo apt-get update && sudo apt-get install -y --no-install-recommends skopeo; }
+      -
+        name: Create and Push Multi-arch Manifests
+        env: ${{ fromJson(steps.load-env.outputs.env) }}
+        run: |
+          set -xeuo pipefail
+
+          IMAGE_BASE="quay.io/travelping/${{ steps.repo.outputs.project }}"
+          BUILD_TAG="${{ env.TAG }}"
+          AMD64_REF="${IMAGE_BASE}:${BUILD_TAG}-amd64"
+          ARM64_REF="${IMAGE_BASE}:${BUILD_TAG}-arm64"
+
+          E="${{ env.ELIXIR_VERSION }}"
+          EM="${{ env.ELIXIR_MINOR }}"
+          OV="${{ env.OTP_VERSION }}"
+          OM="${{ env.OTP_MAJOR }}"
+          AF="${{ env.OTP_ALPINE }}"
+          AMM="${{ env.ALPINE_MAJOR_MINOR }}"
+
+          TAGS=(
+            "${E}-otp-${OV}-alpine-${AF}"
+            "${E}-otp-${OV}-alpine-${AMM}"
+            "${E}-otp-${OV}"
+            "${E}-otp-${OM}"
+            "${EM}-otp-${OM}"
+          )
+
+          for TAG in "${TAGS[@]}"; do
+            MANIFEST_NAME="${IMAGE_BASE}:${TAG}"
+
+            echo "Creating manifest: $MANIFEST_NAME"
+            podman manifest rm "$MANIFEST_NAME" 2>/dev/null || true
+            podman manifest create "$MANIFEST_NAME"
+            podman manifest add "$MANIFEST_NAME" "docker://${AMD64_REF}"
+            podman manifest add "$MANIFEST_NAME" "docker://${ARM64_REF}"
+            podman manifest inspect "$MANIFEST_NAME"
+            podman manifest push --all "$MANIFEST_NAME" "docker://${MANIFEST_NAME}"
+            echo "Pushed multi-arch manifest to quay.io: $MANIFEST_NAME"
+
+            skopeo copy --multi-arch=all "docker://${MANIFEST_NAME}" "docker://${HARBOR_BASE}:${TAG}"
+            echo "Mirrored to Harbor: ${HARBOR_BASE}:${TAG}"
+          done
+      -
+        name: Print Summary
+        env: ${{ fromJson(steps.load-env.outputs.env) }}
+        run: |
+          echo -e "## Elixir image pushed\n" | tee -a $GITHUB_STEP_SUMMARY
+          echo "quay base: quay.io/travelping/${{ steps.repo.outputs.project }}" | tee -a $GITHUB_STEP_SUMMARY
+          echo "Harbor base: ${HARBOR_BASE}" | tee -a $GITHUB_STEP_SUMMARY
+          echo "Elixir ${{ env.ELIXIR_VERSION }} on OTP ${{ env.OTP_VERSION }} (alpine ${{ env.OTP_ALPINE }})" | tee -a $GITHUB_STEP_SUMMARY
+          echo "Per-arch temp tags (${{ env.TAG }}-amd64 / -arm64) auto-expire in 1d." | tee -a $GITHUB_STEP_SUMMARY
