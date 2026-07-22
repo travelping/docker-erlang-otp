@@ -6,15 +6,18 @@ on:
     branches: [ $default-branch ]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   matrix:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-26.04
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
       -
         name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       -
         id: set-matrix
         run: |
@@ -22,97 +25,12 @@ jobs:
           echo "Matrix: $matrix"
           echo "matrix=$matrix" >> $GITHUB_OUTPUT
 
-  images:
+  build:
     needs: matrix
-    runs-on: ubuntu-22.04
     strategy:
       matrix: ${{ fromJson(needs.matrix.outputs.matrix) }}
       fail-fast: false
-    steps:
-      -
-        name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      -
-        name: Choose Repository
-        id: repo
-        run: |
-          case ${{ github.ref }} in
-            refs/heads/master)
-                echo "project=alpine-erlang" >> $GITHUB_OUTPUT
-                ;;
-            *)
-                echo "project=alpine-erlang-dev" >> $GITHUB_OUTPUT
-                ;;
-          esac
-      -
-        name: Load Env
-        id: load-env
-        run: |
-          load=$(jq -cr '{"OTP_MAJOR": "${{ matrix.otp }}"} * (.otp."${{ matrix.otp }}" | with_entries(.key |= "OTP_" + ascii_upcase)) * (.rebar3."\(.otp."${{ matrix.otp }}".rebar3)" | with_entries(.key |= "REBAR3_" + ascii_upcase))' versions.json)
-          tag=$(echo $load | jq -cr ".OTP_VERSION + \":\" + .REBAR3_VERSION + \":$GITHUB_RUN_ID\"" | sha256sum | cut -b -7)
-          alpine_major_minor=$(echo "$load" | jq -cr '.OTP_ALPINE | split(".") | .[0:2] | join(".")')
-          load=$(echo "$load" | jq -cr ". + {\"TAG\":\"$tag\", \"ALPINE_MAJOR_MINOR\":\"$alpine_major_minor\"}")
-          echo "env=$load" >> $GITHUB_OUTPUT
-      -
-        name: Docker Metadata
-        env: ${{ fromJson(steps.load-env.outputs.env) }}
-        id: meta
-        uses: docker/metadata-action@030e881283bb7a6894de51c315a6bfe6a94e05cf # v6.0.0
-        with:
-          images: |
-            quay.io/travelping/${{ steps.repo.outputs.project }}
-          tags: |
-            type=raw,value=${{ env.TAG }}
-            type=raw,value=${{ env.OTP_MAJOR }}
-            type=raw,value=${{ env.OTP_VERSION }}
-            type=raw,value=${{ env.OTP_VERSION }}-alpine-${{ env.ALPINE_MAJOR_MINOR }}
-            type=raw,value=${{ env.OTP_VERSION }}-alpine-${{ env.OTP_ALPINE }}
-            type=raw,value=${{ env.OTP_MAJOR }}-alpine-${{ env.ALPINE_MAJOR_MINOR }}
-            type=raw,value=${{ env.OTP_MAJOR }}-alpine-${{ env.OTP_ALPINE }}
-      -
-        name: Install Packages
-        run: |
-          sudo apt update
-          sudo apt full-upgrade -y
-          sudo apt install qemu-user-static buildah podman
-      -
-        name: Build Image
-        env: ${{ fromJson(steps.load-env.outputs.env) }}
-        id: build-image
-        uses: redhat-actions/buildah-build@7a95fa7ee0f02d552a32753e7414641a04307056 # v2.13
-        with:
-          build-args: |
-            ALPINE_VERSION=alpine:${{ env.OTP_ALPINE }}
-            OTP_VERSION=${{ env.OTP_VERSION }}
-            OTP_DOWNLOAD_SHA256=${{ env.OTP_DOWNLOAD_SHA256 }}
-            REBAR3_VERSION=${{ env.REBAR3_VERSION }}
-            REBAR3_DOWNLOAD_SHA256=${{ env.REBAR3_DOWNLOAD_SHA256 }}
-          image: ${{ steps.meta.outputs.images }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          platforms: linux/amd64
-          # building Erlang/OTP 25.0 for arm64 on QEMU  user emulation is broken,
-          # see https://erlangforums.com/t/otp-25-0-rc3-release-candidate-3-is-released/1317/24
-          # platforms: linux/amd64,linux/arm64
-          extra-args: |
-            --security-opt seccomp=unconfined
-          oci: true
-          containerfiles: |
-            ./Containerfile
-      -
-        name: Check images created
-        run: buildah images
-      -
-        name: Push To Harbor
-        id: push-to-harbor
-        uses: redhat-actions/push-to-registry@5ed88d269cf581ea9ef6dd6806d01562096bee9c # v2.8
-        with:
-          image: ${{ steps.build-image.outputs.image }}
-          tags: ${{ steps.build-image.outputs.tags }}
-          username: ${{ secrets.QUAY_USERNAME }}
-          password: ${{ secrets.QUAY_TOKEN }}
-      -
-        name: Print image url
-        run: |
-          echo -e "Image pushed to:\n" | tee -a $GITHUB_STEP_SUMMARY
-          echo "${{ steps.push-to-harbor.outputs.registry-paths }}" | yq -P | tee -a $GITHUB_STEP_SUMMARY
+    uses: ./.github/workflows/build-image.yaml
+    with:
+      otp-version: ${{ matrix.otp }}
+    secrets: inherit
