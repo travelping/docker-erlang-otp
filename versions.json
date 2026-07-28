@@ -17,15 +17,15 @@
 	"28.5":	{
 	    "alpine": "3.24.1",
 	    "rebar3": "3.27.0",
-	    "version": "28.5.0.3",
-	    "download_sha256": "63c56a954fe6134f283a01312ebefad00fb0f3ac7d7d42062ca3aa8e92ccd21d",
+	    "version": "28.5.0.4",
+	    "download_sha256": "efb045f96ee56d274f6c1fe3a9612b45caa01d2f82e35fe4e0ac9b0c501f6e53",
 	    "elixir": ["1.19.5", "1.20.2"]
 	},
 	"29.0":	{
 	    "alpine": "3.24.1",
 	    "rebar3": "3.27.0",
-	    "version": "29.0.3",
-	    "download_sha256": "f920c660b16794bcb7270d1cbf680f7747c719650bcd6ac449508a32c2a8972a",
+	    "version": "29.0.4",
+	    "download_sha256": "67426425f0eed0dbd6c8cd3d500de4c47bbf1bbe337be0e2c13fc8f8f3e4997a",
 	    "elixir": ["1.20.2"]
 	}
    },
