@@ -38,18 +38,20 @@ Read the `versions.json` file to get the list of currently supported Erlang/OTP 
 - Update `alpine` to the latest available version (including major alpine releases).
 - Update `rebar3` to the latest available version.
 - Update `version` and `download_sha256` if a newer prerelease (e.g., `29.0-rc2`) is available.
-- If `rebar3` is updated, clean up the rebar3 patch directories as described in "rebar3 patch directories" below.
+- If `rebar3` is updated, clean up the rebar3 patch directories as described in "Patch directories" below.
 
-**rebar3 patch directories:**
+**Patch directories:**
 
-The Containerfile applies two kinds of rebar3 patch directory, if they exist:
+The Containerfile applies three kinds of patch directory, if they exist. `<otp>` is always the full OTP version from the entry's `version` field (e.g., `29.0-rc1`, `27.3.4.19`), not the `versions.json` key.
+- `patches/<otp>/` applies to the OTP source of that version. It holds backports of upstream OTP fixes, such as the ERTS alternate signal stack fix for releases before 29.1.
 - `patches/rebar3-<rebar3>/` applies to every OTP entry that uses that rebar3 version. It holds fixes for rebar3 itself, such as the certifi patch that drops distrusted CA roots.
-- `patches/rebar3-<rebar3>-otp-<otp>/` applies to one rebar3 and OTP pair. `<otp>` is the full OTP version from the entry's `version` field (e.g., `29.0-rc1`, `27.3.4.19`), not the `versions.json` key.
+- `patches/rebar3-<rebar3>-otp-<otp>/` applies to one rebar3 and OTP pair.
 
 Keep them in step with `versions.json`:
+- When an entry's `version` changes, rename its `patches/<old version>/` and `patches/rebar3-<rebar3>-otp-<old version>/` directories to the new version. The build looks them up by the full version and silently skips them after a version bump.
+- After the rename, check each OTP patch against the new release. If upstream now includes the fix, remove the patch from the directory and from `series`, and remove the directory once it is empty. Otherwise check that the patch still applies, because quilt fails the build when it does not.
 - When an entry's `rebar3` changes, remove `patches/rebar3-<old>-otp-<otp>/` for that entry. Remove `patches/rebar3-<old>/` only if no remaining entry uses rebar3 `<old>`.
-- When an entry's `version` changes and a `patches/rebar3-<rebar3>-otp-<old version>/` directory exists, rename it to the new version. The build looks it up by the full version and silently skips it after a version bump. Check that the patches still apply.
-- When you remove an entry, remove its `patches/rebar3-<rebar3>-otp-<otp>/` directory, and remove `patches/rebar3-<rebar3>/` if no remaining entry uses that rebar3 version.
+- When you remove an entry, remove its `patches/<otp>/` and `patches/rebar3-<rebar3>-otp-<otp>/` directories, and remove `patches/rebar3-<rebar3>/` if no remaining entry uses that rebar3 version.
 - Never remove a `patches/rebar3-<rebar3>/` directory only because a newer rebar3 release exists. Older entries keep their rebar3 version and still need the fix.
 
 **For each new Erlang/OTP version added:**
@@ -127,7 +129,7 @@ After updating `versions.json`, review the `.github/workflows/images.yaml` file 
 ## Files to Modify
 
 - `versions.json` - Primary file containing version information
-- `patches/rebar3-*/` - Rename or remove when entries change (see "rebar3 patch directories")
+- `patches/` - Rename or remove patch directories when entries change (see "Patch directories")
 - `.github/workflows/images.yaml` - Review only, typically no changes needed
 
 ## Quick Reference
@@ -145,4 +147,4 @@ Per-class behavior when running an update (details in section 3):
 Always-true guardrails:
 - Verify SHA256 from the official `SHA256.txt` when available; if missing, **ask the user** before calculating manually — never guess.
 - Ensure alpine and rebar3 are compatible with the OTP version being added.
-- After any change to an entry's `version` or `rebar3`, or after removing an entry, bring `patches/rebar3-*` in line with `versions.json` (see "rebar3 patch directories").
+- After any change to an entry's `version` or `rebar3`, or after removing an entry, bring `patches/` in line with `versions.json` (see "Patch directories").
