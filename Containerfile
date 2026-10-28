@@ -68,9 +68,11 @@ RUN set -xe \
 	&& tar -xzf rebar3-src.tar.gz -C /usr/src/rebar3-src --strip-components=1 --no-same-owner --no-same-permissions \
 	&& rm rebar3-src.tar.gz \
 	&& cd /usr/src/rebar3-src \
-	&& if [ -f /patches/rebar3-$REBAR3_VERSION-otp-$OTP_VERSION/series ]; then \
-		QUILT_PATCHES=/patches/rebar3-$REBAR3_VERSION-otp-$OTP_VERSION quilt push -a ; \
-	   fi \
+	&& for p in rebar3-$REBAR3_VERSION rebar3-$REBAR3_VERSION-otp-$OTP_VERSION; do \
+		if [ -f /patches/$p/series ]; then \
+			QUILT_PATCHES=/patches/$p QUILT_PC=.pc-$p quilt push -a ; \
+		fi ; \
+	   done \
 	&& HOME=$PWD ./bootstrap \
 	&& install -v ./rebar3 /usr/local/bin/ \
 	&& rm -rf /usr/src/rebar3-src \
@@ -78,7 +80,8 @@ RUN set -xe \
 	&& apk add --virtual .erlang-rundeps \
 		$runDeps \
 		lksctp-tools \
-		ca-certificates \
+		'ca-certificates>=20261020-r0' \
+		'ca-certificates-bundle>=20261020-r0' \
 	&& apk del .fetch-deps .build-deps .quilt-deps
 
 CMD ["erl"]
