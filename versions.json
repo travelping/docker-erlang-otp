@@ -8,24 +8,31 @@
 	    "elixir": ["1.18.5", "1.19.6"]
 	},
 	"27.3":	{
-	    "alpine": "3.21.7",
+	    "alpine": "3.21.9",
 	    "rebar3": "3.24.0",
-	    "version": "27.3.4.16",
-	    "download_sha256": "b945362f125ecdba4281723595f08716808bafd9137ad153f12e1db917ce8517",
+	    "version": "27.3.4.19",
+	    "download_sha256": "866307e64e245e86bee15b3807030a998e59873d7480d6fae1e40b432a3d12b7",
 	    "elixir": ["1.18.5", "1.19.6", "1.20.4"]
 	},
 	"28.5":	{
-	    "alpine": "3.24.1",
+	    "alpine": "3.24.3",
 	    "rebar3": "3.27.0",
-	    "version": "28.5.0.5",
-	    "download_sha256": "5231ba18f31f8041c2d6514cc8842e46954d3b39a53f1617f03f2abe6fea59c7",
+	    "version": "28.5.0.8",
+	    "download_sha256": "8a696e15bcbe5d57197b1f4c03c92d415f9fd9af70f9222a05911c8a5463cba6",
 	    "elixir": ["1.18.5", "1.19.6", "1.20.4"]
 	},
 	"29.0":	{
-	    "alpine": "3.24.1",
+	    "alpine": "3.24.3",
 	    "rebar3": "3.27.0",
-	    "version": "29.0.5",
-	    "download_sha256": "86f6f40d4638852b0383235b02a70d8450184e441e83a06a108bf8e5bf1b2e04",
+	    "version": "29.0.6",
+	    "download_sha256": "36c89ffdac9d7531c19be0cee34355b167ea95188625d32bee61ebf49ac82afa",
+	    "elixir": ["1.19.6", "1.20.4"]
+	},
+	"29.1":	{
+	    "alpine": "3.24.3",
+	    "rebar3": "3.28.0",
+	    "version": "29.1.2",
+	    "download_sha256": "c79966661e35fe4aff8ec003db63682e3b33b10b672220d51bf93c0a9244b049",
 	    "elixir": ["1.19.6", "1.20.4"]
 	}
    },
@@ -53,6 +60,10 @@
 	"3.27.0": {
 	    "version": "3.27.0",
 	    "download_sha256": "985cae6e957334cfa549190b9f5efb9185c184a18fc181c87b8dde096ba79f38"
+	},
+	"3.28.0": {
+	    "version": "3.28.0",
+	    "download_sha256": "4a8bdd1fc845742833988db73012b232a3e9fd048011189ae9e0cecf70bdb7a2"
 	}
     },
     "elixir": {
