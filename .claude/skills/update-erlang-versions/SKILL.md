@@ -38,7 +38,19 @@ Read the `versions.json` file to get the list of currently supported Erlang/OTP 
 - Update `alpine` to the latest available version (including major alpine releases).
 - Update `rebar3` to the latest available version.
 - Update `version` and `download_sha256` if a newer prerelease (e.g., `29.0-rc2`) is available.
-- If `rebar3` is updated, remove any patch directory for the old rebar3+OTP combination from `patches/` (e.g., `patches/rebar3-3.26.0-otp-29.0-rc1/`), as those fixes are now part of the newer rebar3 release.
+- If `rebar3` is updated, clean up the rebar3 patch directories as described in "rebar3 patch directories" below.
+
+**rebar3 patch directories:**
+
+The Containerfile applies two kinds of rebar3 patch directory, if they exist:
+- `patches/rebar3-<rebar3>/` applies to every OTP entry that uses that rebar3 version. It holds fixes for rebar3 itself, such as the certifi patch that drops distrusted CA roots.
+- `patches/rebar3-<rebar3>-otp-<otp>/` applies to one rebar3 and OTP pair. `<otp>` is the full OTP version from the entry's `version` field (e.g., `29.0-rc1`, `27.3.4.19`), not the `versions.json` key.
+
+Keep them in step with `versions.json`:
+- When an entry's `rebar3` changes, remove `patches/rebar3-<old>-otp-<otp>/` for that entry. Remove `patches/rebar3-<old>/` only if no remaining entry uses rebar3 `<old>`.
+- When an entry's `version` changes and a `patches/rebar3-<rebar3>-otp-<old version>/` directory exists, rename it to the new version. The build looks it up by the full version and silently skips it after a version bump. Check that the patches still apply.
+- When you remove an entry, remove its `patches/rebar3-<rebar3>-otp-<otp>/` directory, and remove `patches/rebar3-<rebar3>/` if no remaining entry uses that rebar3 version.
+- Never remove a `patches/rebar3-<rebar3>/` directory only because a newer rebar3 release exists. Older entries keep their rebar3 version and still need the fix.
 
 **For each new Erlang/OTP version added:**
 - Find the latest compatible `rebar3` version.
@@ -115,6 +127,7 @@ After updating `versions.json`, review the `.github/workflows/images.yaml` file 
 ## Files to Modify
 
 - `versions.json` - Primary file containing version information
+- `patches/rebar3-*/` - Rename or remove when entries change (see "rebar3 patch directories")
 - `.github/workflows/images.yaml` - Review only, typically no changes needed
 
 ## Quick Reference
@@ -125,10 +138,11 @@ Per-class behavior when running an update (details in section 3):
 |---|---|---|---|---|
 | Existing stable | bump to newer patch | newer patch within same alpine major only | never | — |
 | Current major series | add missing minors | — | — | — |
-| Existing RC (prerelease) | bump to newer prerelease | latest (incl. new alpine major) | latest | drop old `rebar3-*-otp-*` patch dir when rebar3 bumps |
+| Existing RC (prerelease) | bump to newer prerelease | latest (incl. new alpine major) | latest | when rebar3 bumps: drop old `rebar3-<old>-otp-<otp>` dir, and `rebar3-<old>` only if no entry still uses it |
 | New RC published | add with latest compatible alpine/rebar3 | — | — | never prune when only adding an RC |
 | New major published | add | recent | latest compatible | remove that major's RCs + all previous-major entries except its latest minor/patch |
 
 Always-true guardrails:
 - Verify SHA256 from the official `SHA256.txt` when available; if missing, **ask the user** before calculating manually — never guess.
 - Ensure alpine and rebar3 are compatible with the OTP version being added.
+- After any change to an entry's `version` or `rebar3`, or after removing an entry, bring `patches/rebar3-*` in line with `versions.json` (see "rebar3 patch directories").
