@@ -75,13 +75,18 @@ RUN set -xe \
 	   done \
 	&& HOME=$PWD ./bootstrap \
 	&& install -v ./rebar3 /usr/local/bin/ \
+	&& cd / \
 	&& rm -rf /usr/src/rebar3-src \
 	&& rm -rf /patches \
 	&& apk add --virtual .erlang-rundeps \
 		$runDeps \
 		lksctp-tools \
-		'ca-certificates>=20261020-r0' \
-		'ca-certificates-bundle>=20261020-r0' \
-	&& apk del .fetch-deps .build-deps .quilt-deps
+		ca-certificates \
+	&& for c in emSign_ECC_Root_CA_-_G3 emSign_ECC_Root_CA_-_C3 emSign_Root_CA_-_C1; do \
+		sed -i "s|^mozilla/$c\.crt\$|!&|" /etc/ca-certificates.conf ; \
+	   done \
+	&& update-ca-certificates \
+	&& apk del .fetch-deps .build-deps .quilt-deps \
+	&& erl -noshell -eval 'Bad = [N || C <- public_key:cacerts_get(), N <- [<<"emSign ECC Root CA - G3">>, <<"emSign ECC Root CA - C3">>, <<"emSign Root CA - C1">>], binary:match(element(2, C), N) =/= nomatch], io:format("Distrusted roots in OS store: ~p~n", [Bad]), halt(length(Bad))'
 
 CMD ["erl"]
