@@ -1,0 +1,2 @@
+0001-erts-Respect-Linux-kernel-s-AT_MINSIGSTKSZ-for-alternate-signal-stack.patch
+0002-erts-Size-alternate-signal-stack-via-sysconf-_SC_MINSIGSTKSZ.patch

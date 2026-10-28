@@ -1,0 +1,48 @@
+From fc35c2496cea6461e4d97636fd54b0725b019134 Mon Sep 17 00:00:00 2001
+From: k-patrik <87319161+k-patrik@users.noreply.github.com>
+Date: Mon, 20 Jul 2026 20:37:14 +0200
+Subject: [PATCH] erts: Size alternate signal stack via
+ sysconf(_SC_MINSIGSTKSZ)
+
+getauxval(AT_MINSIGSTKSZ) returns only the bare kernel signal-frame size.
+musl 1.2.6 rejects any alternate stack below sysconf(_SC_MINSIGSTKSZ), which
+it computes as AT_MINSIGSTKSZ plus a 1 KiB handler margin, so the request is
+1 KiB short and the emulator aborts at startup on CPUs with a large signal
+frame (AMX). Size the stack from sysconf(_SC_MINSIGSTKSZ), the value the C
+library actually enforces.
+
+Fixes #11349.
+---
+ erts/emulator/sys/unix/sys_signal_stack.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/erts/emulator/sys/unix/sys_signal_stack.c b/erts/emulator/sys/unix/sys_signal_stack.c
+index 5b61404c053e..b50472ab7ec6 100644
+--- a/erts/emulator/sys/unix/sys_signal_stack.c
++++ b/erts/emulator/sys/unix/sys_signal_stack.c
+@@ -76,9 +76,7 @@
+ #include <signal.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+-#if defined(__linux__)
+-#  include <sys/auxv.h>
+-#endif
++#include <unistd.h>
+ 
+ #include "sys.h"
+ #include "erl_alloc.h"
+@@ -98,9 +96,11 @@
+ void sys_thread_init_signal_stack(void) {
+     stack_t ss;
+ 
+-#if defined(__linux__) && defined(AT_MINSIGSTKSZ)
+-    ss.ss_size = (size_t) getauxval(AT_MINSIGSTKSZ);
+-    ss.ss_size = MAX(ss.ss_size, SIGSTKSZ);
++#if defined(_SC_MINSIGSTKSZ)
++    {
++        long min = sysconf(_SC_MINSIGSTKSZ);
++        ss.ss_size = MAX((size_t) (min > 0 ? min : SIGSTKSZ), (size_t) SIGSTKSZ);
++    }
+ #else
+     ss.ss_size = SIGSTKSZ;
+ #endif
