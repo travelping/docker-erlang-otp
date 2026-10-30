@@ -5,35 +5,35 @@
 	    "rebar3": "3.22.1",
 	    "version": "26.2.5.21",
 	    "download_sha256": "e1fde86f4e2874d4c136221a34753b5b785d762b910fb3fb35a23a6a7faf0a64",
-	    "elixir": ["1.18.5", "1.19.6"]
+	    "elixir": ["1.18.6", "1.19.7"]
 	},
 	"27.3":	{
 	    "alpine": "3.21.9",
 	    "rebar3": "3.24.0",
 	    "version": "27.3.4.19",
 	    "download_sha256": "866307e64e245e86bee15b3807030a998e59873d7480d6fae1e40b432a3d12b7",
-	    "elixir": ["1.18.5", "1.19.6", "1.20.4"]
+	    "elixir": ["1.18.6", "1.19.7", "1.20.5"]
 	},
 	"28.5":	{
 	    "alpine": "3.24.3",
 	    "rebar3": "3.27.0",
 	    "version": "28.5.0.8",
 	    "download_sha256": "8a696e15bcbe5d57197b1f4c03c92d415f9fd9af70f9222a05911c8a5463cba6",
-	    "elixir": ["1.18.5", "1.19.6", "1.20.4"]
+	    "elixir": ["1.18.6", "1.19.7", "1.20.5"]
 	},
 	"29.0":	{
 	    "alpine": "3.24.3",
 	    "rebar3": "3.27.0",
 	    "version": "29.0.6",
 	    "download_sha256": "36c89ffdac9d7531c19be0cee34355b167ea95188625d32bee61ebf49ac82afa",
-	    "elixir": ["1.19.6", "1.20.4"]
+	    "elixir": ["1.19.7", "1.20.5"]
 	},
 	"29.1":	{
 	    "alpine": "3.24.3",
 	    "rebar3": "3.28.0",
 	    "version": "29.1.2",
 	    "download_sha256": "c79966661e35fe4aff8ec003db63682e3b33b10b672220d51bf93c0a9244b049",
-	    "elixir": ["1.19.6", "1.20.4"]
+	    "elixir": ["1.19.7", "1.20.5"]
 	}
    },
     "rebar3": {
@@ -67,17 +67,17 @@
 	}
     },
     "elixir": {
-	"1.18.5": {
-	    "version": "1.18.5",
-	    "download_sha256": "8996eb81697ed84dde41e8ad8f0a52680de52cef35323ca6c9523f668351d873"
+	"1.18.6": {
+	    "version": "1.18.6",
+	    "download_sha256": "6fd16559e2526644644aa013c8773066f4328faf9b6e77ea6861cbbbba816088"
 	},
-	"1.19.6": {
-	    "version": "1.19.6",
-	    "download_sha256": "9c27c00eb9e88666ce7a3c576c1b2160875a56db10e80a49a24a8568c864d071"
+	"1.19.7": {
+	    "version": "1.19.7",
+	    "download_sha256": "a8fa0829edab5fba1394df18b2db884532be320697e2f5bd8cdf78bd9af417b3"
 	},
-	"1.20.4": {
-	    "version": "1.20.4",
-	    "download_sha256": "2f87be1702583ecbeee82c0ad4d6353de96463cfa0fa6e7557e05f68d90da869"
+	"1.20.5": {
+	    "version": "1.20.5",
+	    "download_sha256": "3d99f2e129418800817e0e5a3ce4812c34537a32d50e37578189e90c79de7062"
 	}
     }
 }
