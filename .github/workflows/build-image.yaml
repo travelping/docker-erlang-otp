@@ -4,14 +4,13 @@ name: Build Image
 # version. images.yaml calls this once per version (via matrix) so each
 # version's build+manifest pipeline is independent.
 #
-# Each arch is built natively and pushed to a SHORT-LIVED per-arch tag
-# (<build-tag>-amd64 / -arm64) that carries a `quay.expires-after` label, so
-# quay auto-removes the temp tag after a day. The manifest job assembles the
-# multi-arch list from those temp tags and pushes it under the real
-# (unarchitectured) tags; once the tagged list exists, the per-arch manifests
-# survive as list members even after their temp tags expire. Net result: only
-# the final multi-arch tags remain visible — no per-arch tags cluttering the
-# registry long-term — without needing registry delete permissions.
+# Each arch is built natively and pushed to a per-arch tag
+# (<build-tag>-amd64 / -arm64). The manifest job assembles the multi-arch list
+# from those tags and pushes it under the real (unarchitectured) tags.
+#
+# Do not put a `quay.expires-after` label on the per-arch images. Quay applies
+# that expiry to every manifest list tag that points to the image, so the
+# multi-arch tags expire with the per-arch tags.
 #
 # (A pure by-digest push does NOT work here: quay garbage-collects untagged
 # manifests before the list can reference them.)
@@ -71,9 +70,6 @@ jobs:
         with:
           image: otp-build
           tags: amd64
-          # quay auto-expires the short-lived per-arch tag this image is pushed to
-          labels: |
-            quay.expires-after=1d
           build-args: |
             ALPINE_VERSION=alpine:${{ env.OTP_ALPINE }}
             OTP_VERSION=${{ env.OTP_VERSION }}
@@ -87,7 +83,7 @@ jobs:
           containerfiles: |
             ./Containerfile
       -
-        name: Push temp arch tag
+        name: Push per-arch tag
         env:
           QUAY_USERNAME: ${{ secrets.QUAY_USERNAME }}
           QUAY_TOKEN: ${{ secrets.QUAY_TOKEN }}
@@ -97,7 +93,7 @@ jobs:
           IMAGE="quay.io/travelping/${{ steps.repo.outputs.project }}"
           printf '%s' "$QUAY_TOKEN" | buildah login -u "$QUAY_USERNAME" --password-stdin quay.io
           buildah push "${{ steps.build-image.outputs.image }}:amd64" "docker://${IMAGE}:${BUILD_TAG}-amd64"
-          echo "Pushed temp tag: ${IMAGE}:${BUILD_TAG}-amd64 (expires 1d)"
+          echo "Pushed per-arch tag: ${IMAGE}:${BUILD_TAG}-amd64"
 
   build-arm64:
     runs-on: ubuntu-26.04-arm
@@ -133,8 +129,6 @@ jobs:
         with:
           image: otp-build
           tags: arm64
-          labels: |
-            quay.expires-after=1d
           build-args: |
             ALPINE_VERSION=alpine:${{ env.OTP_ALPINE }}
             OTP_VERSION=${{ env.OTP_VERSION }}
@@ -148,7 +142,7 @@ jobs:
           containerfiles: |
             ./Containerfile
       -
-        name: Push temp arch tag
+        name: Push per-arch tag
         env:
           QUAY_USERNAME: ${{ secrets.QUAY_USERNAME }}
           QUAY_TOKEN: ${{ secrets.QUAY_TOKEN }}
@@ -158,7 +152,7 @@ jobs:
           IMAGE="quay.io/travelping/${{ steps.repo.outputs.project }}"
           printf '%s' "$QUAY_TOKEN" | buildah login -u "$QUAY_USERNAME" --password-stdin quay.io
           buildah push "${{ steps.build-image.outputs.image }}:arm64" "docker://${IMAGE}:${BUILD_TAG}-arm64"
-          echo "Pushed temp tag: ${IMAGE}:${BUILD_TAG}-arm64 (expires 1d)"
+          echo "Pushed per-arch tag: ${IMAGE}:${BUILD_TAG}-arm64"
 
   manifest:
     needs: [build-amd64, build-arm64]
@@ -212,7 +206,7 @@ jobs:
           set -xeuo pipefail
 
           IMAGE_BASE="quay.io/travelping/${{ steps.repo.outputs.project }}"
-          # Per-arch images live under short-lived temp tags (see workflow header).
+          # Per-arch images live under per-arch tags (see workflow header).
           BUILD_TAG="${{ env.TAG }}"
           AMD64_REF="${IMAGE_BASE}:${BUILD_TAG}-amd64"
           ARM64_REF="${IMAGE_BASE}:${BUILD_TAG}-arm64"
@@ -236,7 +230,7 @@ jobs:
             # Remove any existing local manifest to avoid conflicts
             podman manifest rm "$MANIFEST_NAME" 2>/dev/null || true
 
-            # Assemble the list from the per-arch temp tags
+            # Assemble the list from the per-arch tags
             podman manifest create "$MANIFEST_NAME"
             podman manifest add "$MANIFEST_NAME" "docker://${AMD64_REF}"
             podman manifest add "$MANIFEST_NAME" "docker://${ARM64_REF}"
@@ -267,4 +261,4 @@ jobs:
           echo "- ${{ env.OTP_MAJOR }}-alpine-${{ env.OTP_ALPINE }}" | tee -a $GITHUB_STEP_SUMMARY
           echo "" | tee -a $GITHUB_STEP_SUMMARY
           echo "Architectures: linux/amd64, linux/arm64" | tee -a $GITHUB_STEP_SUMMARY
-          echo "Per-arch temp tags (${{ env.TAG }}-amd64 / -arm64) auto-expire in 1d." | tee -a $GITHUB_STEP_SUMMARY
+          echo "Per-arch tags: ${{ env.TAG }}-amd64 / -arm64" | tee -a $GITHUB_STEP_SUMMARY

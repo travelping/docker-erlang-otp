@@ -2,8 +2,9 @@ name: Build Elixir Image
 
 # Reusable workflow: build and publish the multi-arch Elixir image for a single
 # (OTP, Elixir) pair, layered on the already-published Erlang image. Mirrors
-# build-image.yaml: native per-arch build -> short-lived temp tag (quay auto-
-# expires it) -> manifest list -> Harbor mirror.
+# build-image.yaml: native per-arch build -> per-arch tag -> manifest list ->
+# Harbor mirror. See build-image.yaml for why the per-arch images carry no
+# `quay.expires-after` label.
 
 on:
   workflow_call:
@@ -68,8 +69,6 @@ jobs:
         with:
           image: elixir-build
           tags: amd64
-          labels: |
-            quay.expires-after=1d
           build-args: |
             ERLANG_IMAGE=quay.io/travelping/${{ steps.repo.outputs.erlang }}:${{ env.OTP_VERSION }}
             ELIXIR_VERSION=${{ env.ELIXIR_VERSION }}
@@ -81,14 +80,14 @@ jobs:
           containerfiles: |
             ./Containerfile.elixir
       -
-        name: Push temp arch tag
+        name: Push per-arch tag
         env:
           BUILD_TAG: ${{ fromJson(steps.load-env.outputs.env).TAG }}
         run: |
           set -euo pipefail
           IMAGE="quay.io/travelping/${{ steps.repo.outputs.project }}"
           buildah push "${{ steps.build-image.outputs.image }}:amd64" "docker://${IMAGE}:${BUILD_TAG}-amd64"
-          echo "Pushed temp tag: ${IMAGE}:${BUILD_TAG}-amd64 (expires 1d)"
+          echo "Pushed per-arch tag: ${IMAGE}:${BUILD_TAG}-amd64"
 
   build-arm64:
     runs-on: ubuntu-26.04-arm
@@ -134,8 +133,6 @@ jobs:
         with:
           image: elixir-build
           tags: arm64
-          labels: |
-            quay.expires-after=1d
           build-args: |
             ERLANG_IMAGE=quay.io/travelping/${{ steps.repo.outputs.erlang }}:${{ env.OTP_VERSION }}
             ELIXIR_VERSION=${{ env.ELIXIR_VERSION }}
@@ -147,14 +144,14 @@ jobs:
           containerfiles: |
             ./Containerfile.elixir
       -
-        name: Push temp arch tag
+        name: Push per-arch tag
         env:
           BUILD_TAG: ${{ fromJson(steps.load-env.outputs.env).TAG }}
         run: |
           set -euo pipefail
           IMAGE="quay.io/travelping/${{ steps.repo.outputs.project }}"
           buildah push "${{ steps.build-image.outputs.image }}:arm64" "docker://${IMAGE}:${BUILD_TAG}-arm64"
-          echo "Pushed temp tag: ${IMAGE}:${BUILD_TAG}-arm64 (expires 1d)"
+          echo "Pushed per-arch tag: ${IMAGE}:${BUILD_TAG}-arm64"
 
   manifest:
     needs: [build-amd64, build-arm64]
@@ -249,4 +246,4 @@ jobs:
           echo "quay base: quay.io/travelping/${{ steps.repo.outputs.project }}" | tee -a $GITHUB_STEP_SUMMARY
           echo "Harbor base: ${HARBOR_BASE}" | tee -a $GITHUB_STEP_SUMMARY
           echo "Elixir ${{ env.ELIXIR_VERSION }} on OTP ${{ env.OTP_VERSION }} (alpine ${{ env.OTP_ALPINE }})" | tee -a $GITHUB_STEP_SUMMARY
-          echo "Per-arch temp tags (${{ env.TAG }}-amd64 / -arm64) auto-expire in 1d." | tee -a $GITHUB_STEP_SUMMARY
+          echo "Per-arch tags: ${{ env.TAG }}-amd64 / -arm64" | tee -a $GITHUB_STEP_SUMMARY
